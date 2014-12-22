@@ -9,8 +9,11 @@ http://www.daviddlewis.com/resources/testcollections/reuters21578/
 
 ##Uppgifter
 
-**Christopher:** Dynamisk programmering Kerneln (icke-approximativa) \\
-**Daniel:** Hitta datasets \\
-**Pontus:** Färdiga implementationer - WK NGK \\
-**Johan:** Avsnitt 6 i artikeln, den approximativa kerneln \\
+**Christopher:** Dynamisk programmering Kerneln (icke-approximativa)
+
+**Daniel:** Hitta datasets
+
+**Pontus:** Färdiga implementationer - WK NGK
+
+**Johan:** Avsnitt 6 i artikeln, den approximativa kerneln
 
