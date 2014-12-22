@@ -17,3 +17,5 @@ http://www.daviddlewis.com/resources/testcollections/reuters21578/
 
 **Johan:** Avsnitt 6 i artikeln, den approximativa kerneln
 
+##TODO
+ * Hitta en implementation av SVM. ( Friess et al., 1998; Cristianini and Shawe-Taylor, 2000 )
