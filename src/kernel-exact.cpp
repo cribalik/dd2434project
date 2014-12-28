@@ -1,3 +1,19 @@
+/* 
+ * Calculate the SSK Kernel between 2 strings s and t;
+ * 
+ *
+ * 	Usage: programname n filename1 filename2 [lambda]
+ *
+ * 		n: kernel parameter, number of letters to consider
+ *
+ * 		filename1,filename2: paths to files that contain s and t
+ *
+ * 		lambda: exponental falloff parameter
+ *
+ *
+ * 	FIXME: Seems to work for all n except n=1
+ */
+
 #include <algorithm>
 #include <map>
 #include <cstdio>
@@ -28,7 +44,7 @@ T pow (T b, T e) {
 	return r;
 }
 
-// forward declaration of kpp
+// forward declaration of k''
 double kpp (int i, int sl, int tl);
 
 double kp (int i, int sl, int tl) {
@@ -54,6 +70,7 @@ double kp (int i, int sl, int tl) {
 
 double kpp (int i, int sl, int tl) {
 	
+	// check boundary values
 	if (min(sl,tl) < i)
 		return 0;
 
@@ -85,6 +102,7 @@ double k (int i, int sl, int tl) {
 	if (min(sl,tl) < i)
 		return 0;
 
+	// See definition 2 in article
 	double kpsum = 0;
 	char x = s[sl-1];
 	for (int j = 0; j < tl; ++j) {
