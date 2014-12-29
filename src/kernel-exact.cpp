@@ -178,17 +178,20 @@ void readFromStdin(int argc, char const* argv[], int& sl, int& tl) {
 	assert(lambda > 0 && lambda < 1);
 
 	// get s and t from input
-	scanf("%i",&sl); // read string length
+	int gotten;
+	gotten = scanf("%i",&sl); // read string length
+	assert(gotten > 0);
 	getchar(); // throw endline
 	s = new char[sl + 1]; // allocate
-	fgets(s, sl + 1 , stdin); // read string
+	char* r = fgets(s, sl + 1 , stdin); // read string
+	assert(r == s);
 
-	scanf("%i",&tl); // read string length
+	gotten = scanf("%i",&tl); // read string length
+	assert(gotten > 0);
 	getchar(); // throw endline
 	t = new char[tl + 1]; // allocate
-	fgets(t, tl + 1, stdin); // read string
-
-	printf("%s\n%s\n", s,t);
+	r = fgets(t, tl + 1, stdin); // read string
+	assert(r == t);
 
 }
 
