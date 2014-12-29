@@ -135,8 +135,6 @@ int main(int argc, char const *argv[])
 	fseek(sf, 0L, SEEK_SET);
 	fseek(tf, 0L, SEEK_SET);
 
-	printf("%i %i\n", sl, tl);
-
 	// allocate memory
 	s = new char[sl + 1];
 	t = new char[tl + 1];
@@ -151,11 +149,9 @@ int main(int argc, char const *argv[])
 	s[sl] = '\0';
 	t[tl] = '\0';
 
-	printf("%s\n%s\n", s,t);
-
 	// get optional lambda
 	if (argc > 4)
-		lambda = atoi(argv[4]);
+		lambda = atof(argv[4]);
 
 	// Calculate K(s,t)
 	double K = k(n, sl, tl);
