@@ -2,13 +2,28 @@
  * Calculate the SSK Kernel between 2 strings s and t;
  * 
  *
- * 	Usage: programname n filename1 filename2 [lambda]
+ * 	Usage 1: programname n filename1 filename2 [lambda]
  *
  * 		n: kernel parameter, number of letters to consider
  *
  * 		filename1,filename2: paths to files that contain s and t
  *
  * 		lambda: exponental falloff parameter
+ *
+ *
+ *	Usage 2: programname n [lambda]
+ *
+ * 		n: kernel parameter, number of letters to consider
+ *
+ * 		lambda: exponental falloff parameter
+ *		
+ *  	send strings into standard input the following way:
+ *
+ *			size_of_string_1\n
+ *			string_1\n
+ *			size_of_string_2\n
+ *			string_2\n
+ *			
  *
  *
  * 	FIXME: Seems to work for all n except n=1
@@ -26,6 +41,7 @@ using std::make_tuple;
 
 char *s, *t; // documents/strings s and t
 double lambda = 0.5; // parameter lambda; amount of exponental falloff due to string length
+int n;
 
 // memoization. TODO: replace with vectors when max values of i, sl, and tl are known
 std::map< std::tuple<int,int,int> , double > KPmem;
@@ -113,15 +129,11 @@ double k (int i, int sl, int tl) {
 	return val;
 }
 
-int main(int argc, char const *argv[])
-{
-	if (argc < 4) {
-		printf("Usage:%s n filename1 filename2 [lambda]\nn: kernel parameter, number of letters to consider\nfilename1,filename2: paths to files to calculate the kernel for\nlambda: exponental falloff parameter, default value is %lf\n",argv[0], lambda);
-		exit(1);
-	}
-
-	// parameter n of the kernel
-	int n = atoi(argv[1]);
+void readFromFile(int argc, char const *argv[],int& sl, int& tl) {
+	
+	// parameter n of the Kernel
+	n = atoi(argv[1]);
+	assert(n >= 1);
 
 	// Open files
 	FILE* sf = fopen(argv[2],"r");
@@ -130,8 +142,8 @@ int main(int argc, char const *argv[])
 	// get length of files
 	fseek(sf, 0L, SEEK_END);
 	fseek(tf, 0L, SEEK_END);
-	int sl = ftell(sf);
-	int tl = ftell(tf);
+	sl = ftell(sf);
+	tl = ftell(tf);
 	fseek(sf, 0L, SEEK_SET);
 	fseek(tf, 0L, SEEK_SET);
 
@@ -152,6 +164,47 @@ int main(int argc, char const *argv[])
 	// get optional lambda
 	if (argc > 4)
 		lambda = atof(argv[4]);
+	assert(lambda > 0 && lambda < 1);
+}
+
+void readFromStdin(int argc, char const* argv[], int& sl, int& tl) {
+	// parameter n of the Kernel
+	n = atoi(argv[1]);
+	assert(n >= 1);
+
+	// get optional lambda
+	if (argc == 2)
+		lambda = atof(argv[2]);
+	assert(lambda > 0 && lambda < 1);
+
+	// get s and t from input
+	scanf("%i",&sl); // read string length
+	getchar(); // throw endline
+	s = new char[sl + 1]; // allocate
+	fgets(s, sl + 1 , stdin); // read string
+
+	scanf("%i",&tl); // read string length
+	getchar(); // throw endline
+	t = new char[tl + 1]; // allocate
+	fgets(t, tl + 1, stdin); // read string
+
+	printf("%s\n%s\n", s,t);
+
+}
+
+int main(int argc, char const *argv[])
+{
+
+	if (argc == 1) {
+		printf("Usage:%s n filename1 filename2 [lambda]\nn: kernel parameter, number of letters to consider\nfilename1,filename2: paths to files to calculate the kernel for\nlambda: exponental falloff parameter, default value is %lf\n\nOr:\nn lambda\nsend strings through standard input as:\nsize_of_string_1\nstring_1\nsize_of_string_2\nstring_2\n",argv[0], lambda);
+		exit(1);
+	}
+
+	int sl,tl;
+	if (argc > 3)
+		readFromFile(argc,argv,sl,tl);
+	if (argc <= 3)
+		readFromStdin(argc,argv,sl,tl);
 
 	// Calculate K(s,t)
 	double K = k(n, sl, tl);
