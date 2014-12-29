@@ -173,11 +173,9 @@ int main(int argc, char const *argv[])
 	double Ks = k(n,sl,sl);
 
 	// Normalize K with Ks and Kt
-	printf("K non-normal: %lf\n", K);
 	K = K / sqrt( Ks*Kt );
-
-	printf("K normalized: %lf\n", K);
-	printf("Ks: %lf Kt: %lf\n", Ks, Kt);
+	
+	printf("%lf\n", K);
 
 	return 0;
 }
