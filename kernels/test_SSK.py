@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from SSK import *
+from kernels.SSK import *
 
 
 __author__ = 'Daniel Schlaug'
