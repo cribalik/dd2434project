@@ -1,7 +1,12 @@
+from lxml.etree import XMLSyntaxError
+
+__author__ = 'Daniel Schlaug'
+
 import os
-from article import Article
 
 from enum import Enum
+
+from article import Article
 
 try:
     from lxml import etree
@@ -34,10 +39,6 @@ except ImportError:
                 except ImportError:
                     print("Failed to import ElementTree from any known place")
 
-__author__ = 'Daniel Schlaug'
-
-test = 67
-
 
 class DataType(Enum):
     training = 1
@@ -59,29 +60,57 @@ class Parser:
 
     def articles(self):
         """
-        Parse and return the articles.
+        Parse and return the articles in the reuters data set.
 
         :return: list[Article] All articles in the dataset.
         """
         data_files = os.listdir(self.__reuters_location)
-        sgm_files = filter(lambda filename: filename.endswith(".sgm"), data_files)
+        sgm_files = filter(lambda filename: filename.lower().endswith(".sgm"), data_files)
         articles = []
         for sgm_file in sgm_files:
             full_file_path = os.path.join(self.__reuters_location, sgm_file)
-            # event_parser = etree.XMLPullParser(recover=True, events=('start', 'end'))
-            resilient_parser = etree.XMLParser(recover=True)
-            xml_tree = etree.parse(full_file_path, resilient_parser)
-            print(etree.tostring(xml_tree))
-            for xml_element in xml_tree.iter():
-                if xml_element.tag.upper() == "REUTERS":
-                    article = _parse_reuters_element(xml_element)
-                    articles.append(article)
+            articles_in_file = _parse_sgm_file(full_file_path)
+            articles += articles_in_file
         return articles
 
 
+def _parse_sgm_file(sgm_file_path):
+    resilient_parser = etree.XMLParser(recover=True, encoding='ascii')
+
+    with open(sgm_file_path) as sgm_file:
+        sgm_file.readline()
+        file_contents = sgm_file.read()
+
+    file_contents = "<articles>" + file_contents + "</articles>"
+    try:
+        xml_tree = etree.fromstring(file_contents, resilient_parser)
+    except XMLSyntaxError as e:
+        raise Exception("Could not parse file %s:\n%s" % (sgm_file_path, e.message))
+    except ValueError as e:
+        raise Exception("Could not parse file %s:\n%s" % (sgm_file_path, e.message))
+
+    xml_articles = xml_tree
+    articles = []
+    for xml_element in xml_articles.iterchildren("REUTERS"):
+        article = _parse_reuters_element(xml_element)
+        articles.append(article)
+    return articles
+
+
 def _parse_reuters_element(reuters_element):
-    title = reuters_element.xpath('//TITLE')
-    body = reuters_element.xpath('//BODY')
-    large_body = title + body
-    assert len(large_body) != 0, "Empty element %r" % reuters_element.tostring()
-    return Article(topics=[], body=large_body)
+    topic_elements = reuters_element.xpath('.//TOPICS/D')
+    topics = map(lambda element: element.text, topic_elements)
+    title_elements = reuters_element.xpath('.//TITLE')
+    if len(title_elements) > 0:
+        title_element = title_elements[0]
+        title = title_element.text
+    else:
+        title = None
+    body_elements = reuters_element.xpath('.//BODY')
+    if len(body_elements) > 0:
+        body_element = body_elements[0]
+        body = body_element.text
+    else:
+        body = reuters_element.xpath(".//TEXT")[0].text
+    assert len(body) != 0, "Empty element %r" % reuters_element.tostring()
+    return Article(topics=topics, body=body, title=title)

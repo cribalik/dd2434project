@@ -1,7 +1,7 @@
 __author__ = 'Daniel Schlaug'
 
 class Article:
-    def __init__(self, topics, body):
+    def __init__(self, title, body, topics):
         """
         Create an article from its category and list of words.
 
@@ -9,8 +9,13 @@ class Article:
         :param body: A string with the body of the article.
         :return: A new article object.
         """
-        self.__topics = topics
+        self.__title = title
         self.__body = body
+        self.__topics = topics
+
+    @property
+    def title(self):
+        return self.__title
 
     @property
     def body(self):
