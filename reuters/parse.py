@@ -12,7 +12,7 @@ from lxml import etree
 
 
 class Parser:
-    def __init__(self, reuters_location, remove_stopwords=True, remove_punctuation=True, split=split.modapte):
+    def __init__(self, reuters_location, remove_stopwords=True, remove_punctuation=True, split_function=split.modapte):
         """
         Create a new parser for the Reuters data set.
 
@@ -20,6 +20,7 @@ class Parser:
         sgm files). If left unset nltk's reuter corpus (21578, ApteMod split) will be used.
         :param remove_stopwords: boolean
         :param remove_punctuation: boolean
+        :param split_function: The function to be used to determine the DataType of each article.
         :return: Parser A new parser.
         """
         if not os.path.isdir(reuters_location):
@@ -30,13 +31,14 @@ class Parser:
         self.__remove_punctuation = remove_punctuation
         self.__stop_list = None
         self.__punctuation_pattern = re.compile(r'[^\w\s]')
-        self.__split = split
+        self.__split = split_function
 
     def articles(self):
         """
         Parse and return the articles in the reuters data set.
 
-        :return: list[Article] All articles in the data set.
+        :rtype : List(T <= Article)
+        :return: All articles in the data set.
         """
         data_files = os.listdir(self.__reuters_location)
         sgm_files = filter(lambda filename: filename.lower().endswith(".sgm"), data_files)
