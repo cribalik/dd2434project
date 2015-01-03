@@ -22,8 +22,8 @@ def modapte(reuter_element):
                 data_type = DataType.training
             elif type_string == "TEST":
                 data_type = DataType.testing
+            else:
+                data_type = DataType.unused
         else:
             data_type = DataType.unused
-    if data_type == None:
-        etree.tostring(reuter_element)
     return data_type

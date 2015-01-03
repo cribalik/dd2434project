@@ -16,15 +16,19 @@ class Parser:
         """
         Create a new parser for the Reuters data set.
 
+        :type reuters_location: str
+        :type remove_stopwords: bool
+        :type remove_punctuation: bool
         :param reuters_location: str An optional string with the path of the root for the data set (containing all the
-        sgm files). If left unset nltk's reuter corpus (21578, ApteMod split) will be used.
-        :param remove_stopwords: boolean
-        :param remove_punctuation: boolean
+        sgm files) or of a single sgm file to use.
         :param split_function: The function to be used to determine the DataType of each article.
         :return: Parser A new parser.
         """
-        if not os.path.isdir(reuters_location):
-            raise Exception("Could not create reuters.Parser because directory %r was not found." % reuters_location)
+        if not os.path.exists(reuters_location):
+            raise Exception("Could not create reuters.Parser because path %r was not found." % reuters_location)
+        if os.path.isfile(reuters_location) and not reuters_location.lower().endswith(".sgm"):
+            raise Exception(
+                "Could not create reuters.Parser because %r is not a directory or sgm file." % reuters_location)
 
         self.__reuters_location = reuters_location
         self.__remove_stopwords = remove_stopwords
@@ -40,8 +44,11 @@ class Parser:
         :rtype : List(T <= Article)
         :return: All articles in the data set.
         """
-        data_files = os.listdir(self.__reuters_location)
-        sgm_files = filter(lambda filename: filename.lower().endswith(".sgm"), data_files)
+        if os.path.isdir(self.__reuters_location):
+            data_files = os.listdir(self.__reuters_location)
+            sgm_files = filter(lambda filename: filename.lower().endswith(".sgm"), data_files)
+        else:
+            sgm_files = [self.__reuters_location]
         articles = []
         for sgm_file in sgm_files:
             full_file_path = os.path.join(self.__reuters_location, sgm_file)
@@ -56,6 +63,7 @@ class Parser:
             sgm_file.readline()
             file_contents = sgm_file.read()
 
+        file_contents = re.sub(r'...&#5;&#30;', '', file_contents) # Hack to get past nasty character in reut2-017.sgm
         file_contents = "<articles>" + file_contents + "</articles>"
         try:
             xml_tree = etree.fromstring(file_contents, resilient_parser)
@@ -64,26 +72,24 @@ class Parser:
 
         xml_articles = xml_tree
         articles = []
-        for xml_element in xml_articles.iterchildren("REUTERS"):
+        for xml_element in xml_articles.iterchildren():
             article = self.__parse_reuters_element(xml_element)
             if article:
                 articles.append(article)
+            else:
+                print("Could not parse element \n %r" % etree.tostring(xml_element))
         return articles
 
     def __parse_reuters_element(self, reuters_element):
         data_type = self.__split(reuters_element)
-        result_article = None
-        if data_type:
-            topics = reuters_element.xpath('.//TOPICS/D/text()')
-            body_texts = reuters_element.xpath('.//TEXT/text() | .//TEXT/TITLE/text() | .//TEXT/BODY/text()')
-            body = '\n'.join(body_texts)
-
-            scrubbed_body = self.__scrub(body)
-
-            if len(scrubbed_body) == 0:
-                print("Warning: Empty element: %r" % etree.tostring(reuters_element))
-            result_article = Article(topics=topics, body=scrubbed_body, data_type=data_type)
-        return result_article
+        assert data_type is not None, "Data type should never be None (should instead be unused)"
+        topics = reuters_element.xpath('.//TOPICS/D/text()')
+        body_texts = reuters_element.xpath('.//TEXT/text() | .//TEXT/TITLE/text() | .//TEXT/BODY/text()')
+        body = '\n'.join(body_texts)
+        scrubbed_body = self.__scrub(body)
+        if len(scrubbed_body) == 0:
+            print("Warning: Empty element: %r" % etree.tostring(reuters_element))
+        return Article(topics=topics, body=scrubbed_body, data_type=data_type)
 
     @property
     def stop_list(self):
