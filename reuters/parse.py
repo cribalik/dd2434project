@@ -6,6 +6,7 @@ import os
 import re
 
 from article import Article
+from article import DataType
 from reuters import split
 
 from lxml import etree
@@ -36,24 +37,32 @@ class Parser:
         self.__stop_list = None
         self.__punctuation_pattern = re.compile(r'[^\w\s]')
         self.__split = split_function
+        self.__cached_articles = None
 
-    def articles(self):
+    def articles(self, only_of_type=None):
         """
         Parse and return the articles in the reuters data set.
 
+        :type only_of_type: DataType
+        :param only_of_type: Optional. Pass a DataType to get only articles of that type.
         :rtype : List(T <= Article)
         :return: All articles in the data set.
         """
-        if os.path.isdir(self.__reuters_location):
-            data_files = os.listdir(self.__reuters_location)
-            sgm_files = filter(lambda filename: filename.lower().endswith(".sgm"), data_files)
-        else:
-            sgm_files = [self.__reuters_location]
-        articles = []
-        for sgm_file in sgm_files:
-            full_file_path = os.path.join(self.__reuters_location, sgm_file)
-            articles_in_file = self.__parse_sgm_file(full_file_path)
-            articles += articles_in_file
+        if not self.__cached_articles:
+            if os.path.isdir(self.__reuters_location):
+                data_files = os.listdir(self.__reuters_location)
+                sgm_files = filter(lambda filename: filename.lower().endswith(".sgm"), data_files)
+            else:
+                sgm_files = [self.__reuters_location]
+            articles = []
+            for sgm_file in sgm_files:
+                full_file_path = os.path.join(self.__reuters_location, sgm_file)
+                articles_in_file = self.__parse_sgm_file(full_file_path)
+                articles += articles_in_file
+            self.__cached_articles = articles
+        articles = self.__cached_articles
+        if only_of_type:
+            articles = [article for article in articles if article.data_type == only_of_type]
         return articles
 
     def __parse_sgm_file(self, sgm_file_path):
