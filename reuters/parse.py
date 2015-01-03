@@ -65,6 +65,21 @@ class Parser:
             articles = [article for article in articles if article.data_type == only_of_type]
         return articles
 
+    @property
+    def stop_list(self):
+        if not self.__stop_list:
+            import nltk
+
+            def fetch_stopwords():
+                return set(nltk.corpus.stopwords.words('english'))
+
+            try:
+                self.__stop_list = fetch_stopwords()
+            except LookupError:
+                nltk.download('stopwords')
+                self.__stop_list = fetch_stopwords()
+        return self.__stop_list
+
     def __parse_sgm_file(self, sgm_file_path):
         resilient_parser = etree.XMLParser(recover=True, encoding='ascii')
 
@@ -99,21 +114,6 @@ class Parser:
         if len(scrubbed_body) == 0:
             print("Warning: Empty element: %r" % etree.tostring(reuters_element))
         return Article(topics=topics, body=scrubbed_body, data_type=data_type)
-
-    @property
-    def stop_list(self):
-        if not self.__stop_list:
-            import nltk
-
-            def fetch_stopwords():
-                return set(nltk.corpus.stopwords.words('english'))
-
-            try:
-                self.__stop_list = fetch_stopwords()
-            except LookupError:
-                nltk.download('stopwords')
-                self.__stop_list = fetch_stopwords()
-        return self.__stop_list
 
     def __scrub(self, text):
         if self.__remove_punctuation:

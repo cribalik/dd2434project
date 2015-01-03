@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from reuters import DataType
 from reuters.parse import *
 from bs4 import BeautifulSoup
 
@@ -13,31 +12,31 @@ _path_to_real_reuters = os.path.join(_dir, "../data/reuters21578")
 
 
 class TestParserIT(TestCase):
-    _articles_stopwords_punctuation_removed_modapte = None
+    _parser_stopwords_punctuation_removed_modapte = None
 
     @property
-    def articles_stopwords_punctuation_removed_modapte(self):
-        if TestParserIT._articles_stopwords_punctuation_removed_modapte is None:
+    def parser_stopwords_punctuation_removed_modapte(self):
+        if TestParserIT._parser_stopwords_punctuation_removed_modapte is None:
             parser = Parser(_path_to_real_reuters,
                             remove_punctuation=True,
                             remove_stopwords=True,
                             split_function=split.modapte)
-            TestParserIT._articles_stopwords_punctuation_removed_modapte = parser.articles()
-        return TestParserIT._articles_stopwords_punctuation_removed_modapte
+            TestParserIT._parser_stopwords_punctuation_removed_modapte = parser
+        return TestParserIT._parser_stopwords_punctuation_removed_modapte
 
     def test_number_of_unused_articles(self):
-        articles = self.articles_stopwords_punctuation_removed_modapte
-        unused_articles = [article for article in articles if article.data_type == DataType.unused]
+        parser = self.parser_stopwords_punctuation_removed_modapte
+        unused_articles = parser.articles(only_of_type=DataType.unused)
         self.failUnlessEqual(8676, len(unused_articles))
 
     def test_number_of_test_articles(self):
-        articles = self.articles_stopwords_punctuation_removed_modapte
-        test_articles = [article for article in articles if article.data_type == DataType.testing]
+        parser = self.parser_stopwords_punctuation_removed_modapte
+        test_articles = parser.articles(only_of_type=DataType.testing)
         self.failUnlessEqual(3299, len(test_articles))
 
     def test_number_of_training_articles(self):
-        articles = self.articles_stopwords_punctuation_removed_modapte
-        training_articles = [article for article in articles if article.data_type == DataType.training]
+        parser = self.parser_stopwords_punctuation_removed_modapte
+        training_articles = parser.articles(only_of_type=DataType.training)
         self.failUnlessEqual(9603, len(training_articles))
 
     def test_number_of_articles_in_each_file(self):
