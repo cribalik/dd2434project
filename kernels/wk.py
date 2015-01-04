@@ -14,7 +14,7 @@ def wkernel(x, y, idf):
     for w in yw:
         tf[w] = 0.
     xtf = tf.copy()
-    ytf = tf
+    ytf = tf.copy()
 
     #getting tf
     for w in xw:
@@ -33,10 +33,6 @@ def wkernel(x, y, idf):
         ytf[key] = ytf[key] * idf[key]
         xtf[key] = xtf[key] * idf[key]
 
-    #print xtf
-    #print xtf.values()
-    #print ytf
-    #print ytf.values()
     return 1 - spatial.distance.cosine(xtf.values(), ytf.values())
 
 
@@ -55,6 +51,8 @@ def get_df(docs):
                 df[w] = 1.
     return df
 
+
+# Takes an array of document strings and returns a dict with words as key and idf as value
 def get_idf(docs):
     n = len(docs)
     df = get_df(docs)

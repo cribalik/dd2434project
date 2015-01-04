@@ -17,7 +17,7 @@ def ngkernel(x, y, n):
         d[y[i:i+n]] = 0.
 
     xd = d.copy()
-    yd = d
+    yd = d.copy()
 
     #This only acounts for if the n-gram exist not how often Borde det vara xd[x[i:i+n]] = xd[x[i:i+n]] + 1 istället.
     for i in range(len(x)):
