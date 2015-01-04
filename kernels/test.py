@@ -18,5 +18,5 @@ print test_wk(docs[4], docs[4])
 print test_wk(docs[0], docs[2])
 print "---"
 test_ngk = ngk.ngk(2)
-print test_ngk(docs[4], docs[4])
+print ngk.ngk(2)(docs[4], docs[4])
 print test_ngk(docs[0], docs[2])

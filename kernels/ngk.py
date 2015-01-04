@@ -3,9 +3,9 @@ import numpy as np
 
 __author__ = 'Pontus'
 
-# n-grams maps strings into high dimensional feture vectors
-# Each entry of the vector represents occurence of non-occurrence of a contiguous subsequence by a number
-# Min tolkning av detta är att kerneln bara tar hänsyn till om ngrammet existerar into hur ofta
+# n is the size of the n-grams used.
+# docstring1 and docstring2 are document strings with stop words and '.' removed
+# ngk(n)(docstring1, docstring2)
 def ngkernel(x, y, n):
     # empty dict
     d = {}
@@ -28,6 +28,7 @@ def ngkernel(x, y, n):
 
     #return np.inner(np.array(xd.values()),np.array(yd.values()))
     return np.dot(np.array(xd.values()),np.array(yd.values()).transpose())/len(yd.values())
+
 
 def ngk(n):
     return lambda x, y: ngkernel(x, y, n)

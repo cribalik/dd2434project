@@ -3,7 +3,10 @@ import numpy as np
 from scipy import spatial
 __author__ = 'Pontus'
 
-
+# docs is an array of document strings with stop words an '.' removed
+# docstring1 and docstring2 are document strings in docs
+# idf = get_idf(docs)
+# wk(idf)(docstring1, docstring2)
 def wkernel(x, y, idf):
     xw = x.split(" ")
     yw = y.split(" ")
