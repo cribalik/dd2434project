@@ -21,7 +21,7 @@ class TestParser(TestCase):
 
     def test_article_body(self):
         articles = _get_test_articles()
-        beginning_of_first_body = "uk money market shortage forecast 250 mln stg bank england said for"
+        beginning_of_first_body = "uk money market shortage forecast mln stg bank england said forecas"
         self.failUnlessEqual(beginning_of_first_body, articles[0].body[0:len(beginning_of_first_body)])
         end_of_last_body = " year gave details reuter"
         self.failUnlessEqual(end_of_last_body, articles[-1].body[-25:])

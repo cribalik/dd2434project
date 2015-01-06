@@ -34,6 +34,7 @@ class TestParserIT(TestCase):
         test_articles = parser.articles(only_of_type=DataType.testing)
         self.failUnlessEqual(3299, len(test_articles))
 
+
     def test_number_of_training_articles(self):
         parser = self.parser_stopwords_punctuation_removed_modapte
         training_articles = parser.articles(only_of_type=DataType.training)
@@ -75,3 +76,15 @@ class TestParserIT(TestCase):
                 else:
                     condition = False
         self.failUnlessEqual(len(all_text), 0)
+
+    def fetch_longest_body(self):
+        parser = self.parser_stopwords_punctuation_removed_modapte
+        test_articles = parser.articles(only_of_type=DataType.testing)
+        training_articles = parser.articles(only_of_type=DataType.training)
+        used_articles = test_articles + training_articles
+        longest_article = ""
+        for article in used_articles:
+            body = article.body
+            if len(body) > len(longest_article):
+                longest_article = body
+        print("Longest article:\n%r" % longest_article)
