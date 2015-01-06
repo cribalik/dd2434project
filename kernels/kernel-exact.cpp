@@ -47,6 +47,8 @@ int n;
 // memoization. TODO: replace with vectors when max values of i, sl, and tl are known
 std::map< std::tuple<int,int,int> , double > KPmem;
 std::map< std::tuple<int,int,int> , double > KPPmem;
+std::map< std::tuple<int,int,int> , double > Kmem;
+
 
 // generic power function using repeated squaring
 template<typename T>
@@ -119,6 +121,12 @@ double k (int i, int sl, int tl) {
 	if (min(sl,tl) < i)
 		return 0;
 
+	// check memoization
+	auto key = make_tuple(i,sl,tl);
+	auto it = Kmem.find(key);
+	if ( it != Kmem.end() )
+		return it->second;
+
 	// See definition 2 in article
 	double kpsum = 0;
 	char x = s[sl-1];
@@ -126,7 +134,10 @@ double k (int i, int sl, int tl) {
 		if (t[j] != x) continue;
 		kpsum += kp(i-1, sl-1, j);
 	}
+
+	// calculate, save and return
 	double val = k(i, sl-1, tl) + kpsum*lambda*lambda;
+	Kmem[key] = val;
 	return val;
 }
 
