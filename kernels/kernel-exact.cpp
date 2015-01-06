@@ -36,6 +36,7 @@
 #include <cmath>
 #include <tuple>
 #include <cassert>
+#include <iostream>
 
 using std::min;
 using std::make_tuple;
@@ -45,10 +46,25 @@ double lambda = 0.5; // parameter lambda; amount of exponental falloff due to st
 int n;
 
 // memoization. TODO: replace with vectors when max values of i, sl, and tl are known
-std::map< std::tuple<int,int,int> , double > KPmem;
-std::map< std::tuple<int,int,int> , double > KPPmem;
-std::map< std::tuple<int,int,int> , double > Kmem;
+// std::map< std::tuple<int,int,int> , double > KPmem;
+// std::map< std::tuple<int,int,int> , double > KPPmem;
+// std::map< std::tuple<int,int,int> , double > Kmem;
+const int MAX_STRING_SIZE = 2000;
+double KPmem[10][MAX_STRING_SIZE][MAX_STRING_SIZE];
+double Kmem[10][MAX_STRING_SIZE][MAX_STRING_SIZE];
+double KPPmem[10][MAX_STRING_SIZE][MAX_STRING_SIZE];
 
+const double NOTSET = -100000;
+
+void resetMem() {
+	for (int i = 0; i < 10; ++i)
+	for (int j = 0; j < MAX_STRING_SIZE; ++j)
+	for (int k = 0; k < MAX_STRING_SIZE; ++k){
+		KPPmem[i][j][k] = NOTSET;
+		KPmem[i][j][k] = NOTSET;
+		Kmem[i][j][k] = NOTSET;
+	}
+}
 
 // generic power function using repeated squaring
 template<typename T>
@@ -76,14 +92,17 @@ double kp (int i, int sl, int tl) {
 		return 0;
 	
 	// check the memoization
-	auto key = make_tuple(i,sl,tl);
-	auto it = KPmem.find(key);
-	if ( it != KPmem.end() ) 
-		return it->second;
+	if (KPmem[i][sl][tl] != NOTSET)
+		return KPmem[i][sl][tl];
+	// auto key = make_tuple(i,sl,tl);
+	// auto it = KPmem.find(key);
+	// if ( it != KPmem.end() ) 
+	// 	return it->second;
 
 	// if it has not been saved, calculate it, save it and return it
 	double val = lambda*kp(i, sl-1, tl) + kpp(i, sl, tl);
-	KPmem[key] = val;
+	KPmem[i][sl][tl] = val;
+	// KPmem[key] = val;
 	return val;
 }
 
@@ -94,15 +113,18 @@ double kpp (int i, int sl, int tl) {
 		return 0;
 
 	// check memoization
-	auto key = make_tuple(i,sl,tl);
-	auto it = KPPmem.find(key);
-	if ( it != KPPmem.end() )
-		return it->second;
-
+	if (KPPmem[i][sl][tl] != NOTSET)
+		return KPPmem[i][sl][tl];
+	// auto key = make_tuple(i,sl,tl);
+	// auto it = KPPmem.find(key);
+	// if ( it != KPPmem.end() ){
+	// 	return it->second;
+	// }
+	const int tl_old = tl;
 	// kpp (sx, tu) = lambda^|u| * kpp (sx,t) if x does not occur in u.
 	double c = 1;
 	int ul = 0;
-	while (s[sl-1] != t[tl-1] && tl != 0) {
+	while (tl != 0 && s[sl-1] != t[tl-1]) {
 		--tl;
 		++ul;
 	}
@@ -111,7 +133,8 @@ double kpp (int i, int sl, int tl) {
 
 	// calculate, save and return
 	double val = c * lambda * ( kpp(i,sl,tl-1) + lambda*kp(i-1,sl-1,tl-1) );
-	KPPmem[key] = val;
+	KPPmem[i][sl][tl_old] = val;
+	// KPPmem[key] = val;
 	return val;
 }
 
@@ -122,10 +145,12 @@ double k (int i, int sl, int tl) {
 		return 0;
 
 	// check memoization
-	auto key = make_tuple(i,sl,tl);
-	auto it = Kmem.find(key);
-	if ( it != Kmem.end() )
-		return it->second;
+	if (Kmem[i][sl][tl] != NOTSET)
+		return Kmem[i][sl][tl];
+	// auto key = make_tuple(i,sl,tl);
+	// auto it = Kmem.find(key);
+	// if ( it != Kmem.end() )
+	// 	return it->second;
 
 	// See definition 2 in article
 	double kpsum = 0;
@@ -137,7 +162,8 @@ double k (int i, int sl, int tl) {
 
 	// calculate, save and return
 	double val = k(i, sl-1, tl) + kpsum*lambda*lambda;
-	Kmem[key] = val;
+	Kmem[i][sl][tl] = val;
+	// Kmem[key] = val;
 	return val;
 }
 
@@ -221,19 +247,25 @@ int main(int argc, char const *argv[])
 	if (argc <= 3)
 		readFromStdin(argc,argv,sl,tl);
 
+	if (sl >= MAX_STRING_SIZE || tl >= MAX_STRING_SIZE){
+		std::cerr << "Only supports strings of size up to " << MAX_STRING_SIZE << "!\n";
+		exit(EXIT_FAILURE);
+	}
+
 	// Calculate K(s,t)
+	resetMem();
 	double K = k(n, sl, tl);
 
 	// calculate K(t,t)
 	char* s_true = s;
 	s = t;
-	KPmem.clear(); KPPmem.clear();
+	resetMem();
 	double Kt = k(n,tl,tl);
 
 	// Calculate K(s,s)
 	t = s_true;
 	s = s_true;
-	KPmem.clear(); KPPmem.clear();
+	resetMem();
 	double Ks = k(n,sl,sl);
 
 	// Normalize K with Ks and Kt

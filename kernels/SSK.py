@@ -6,6 +6,10 @@ __m_dir = os.path.dirname(os.path.abspath(__file__));
 
 # Calculate SSK with parameters n and plambda for the strings str1 and str2
 def SSK(n, plambda, str1, str2):
+    
+    if len(str1) >= 2000 or len(str2) >= 2000:
+        raise ValueError("Only strings below 2000 characters are supported! For reuter this should never happen, if you need this expanded, contact Christopher ;)")
+    
     # Check if the kernel module has been compiled
     if not os.path.isfile(os.path.join(__m_dir, "kernel-exact.out")):
         print "calling 'make' to compile SSK kernel module"
