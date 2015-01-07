@@ -38,9 +38,7 @@
 #include <cassert>
 #include <iostream>
 
-char *s, *t; // documents/strings s and t
-double lambda = 0.5; // parameter lambda; amount of exponental falloff due to string length
-int n;
+const double DEFAULT_LAMBDA = 0.5; // parameter lambda; amount of exponental falloff due to string length
 
 // generic power function using repeated squaring
 template<typename T>
@@ -57,7 +55,7 @@ T pow (T b, T e) {
 
 
 
-void readFromFile(int argc, char const *argv[],int& sl, int& tl) {
+void readFromFile(int argc, char const *argv[],int& sl, int& tl, char*& s, char*& t, int& n, double& lambda) {
 	
 	// parameter n of the Kernel
 	n = atoi(argv[1]);
@@ -95,7 +93,7 @@ void readFromFile(int argc, char const *argv[],int& sl, int& tl) {
 	assert(lambda > 0 && lambda < 1);
 }
 
-void readFromStdin(int argc, char const* argv[], int& sl, int& tl) {
+void readFromStdin(int argc, char const* argv[], int& sl, int& tl, char*& s, char*& t, int& n, double& lambda) {
 	// parameter n of the Kernel
 	n = atoi(argv[1]);
 	assert(n >= 1);
@@ -124,7 +122,7 @@ void readFromStdin(int argc, char const* argv[], int& sl, int& tl) {
 }
 
 // memoization.
-const int MAX_STRING_SIZE = 2000;
+const int MAX_STRING_SIZE = 7000;
 double mem[6][MAX_STRING_SIZE][MAX_STRING_SIZE];
 typedef double (*Mem) [MAX_STRING_SIZE];
 Mem KPmemPrev = mem[0];
@@ -136,66 +134,33 @@ Mem KPPmemNext = mem[5];
 
 const double NOTSET = -1;
 
-void resetMem() {
-	for (int j = 0; j < MAX_STRING_SIZE; ++j)
-	for (int k = 0; k < MAX_STRING_SIZE; ++k){
-		KPPmemPrev[j][k] = NOTSET;
-		KPmemPrev[j][k] = NOTSET;
-		KmemPrev[j][k] = NOTSET;
-	}
-}
-
 void switchMem() {
-
-	// std::cerr << (void*) KmemPrev << ' ' << (void*) KmemNext << ' ' << (void*) KPmemPrev << ' ' << (void*) KPmemNext << ' ' << (void*) KPPmemPrev << ' ' << (void*) KPPmemNext << std::endl;
-
 	std::swap(KmemPrev, KmemNext);
 	std::swap(KPmemPrev, KPmemNext);
 	std::swap(KPPmemPrev, KPPmemNext);
-
-	// std::cerr << (void*) KmemPrev << ' ' << (void*) KmemNext << ' ' << (void*) KPmemPrev << ' ' << (void*) KPmemNext << ' ' << (void*) KPPmemPrev << ' ' << (void*) KPPmemNext << std::endl;
 }
 
-int main(int argc, char const *argv[])
-{
-
-	if (argc == 1) {
-		printf("Usage:%s n filename1 filename2 [lambda]\nn: kernel parameter, number of letters to consider\nfilename1,filename2: paths to files to calculate the kernel for\nlambda: exponental falloff parameter, default value is %lf\n\nOr:\nn lambda\nsend strings through standard input as:\nsize_of_string_1\nstring_1\nsize_of_string_2\nstring_2\n",argv[0], lambda);
-		exit(1);
-	}
-
-	// read input
-
-	int SL,TL;
-	if (argc > 3)
-		readFromFile(argc,argv,SL,TL);
-	if (argc <= 3)
-		readFromStdin(argc,argv,SL,TL);
-
-	if (SL >= MAX_STRING_SIZE || TL >= MAX_STRING_SIZE){
-		std::cerr << "Only supports strings of size up to " << MAX_STRING_SIZE << "!\n";
-		exit(EXIT_FAILURE);
-	}
+double getK(const int n, const int SL, const int TL, const char* s, const char* t, double lambda) {
 
 	// init KP
-	for (int i = 0; i < MAX_STRING_SIZE; ++i)
-	for (int j = 0; j < MAX_STRING_SIZE; ++j)
+	for (int i = 0; i <= SL; ++i)
+	for (int j = 0; j <= TL; ++j)
 		KPmemPrev[i][j] = 1;
 
 
 	for (int i = 1; i <= n; ++i){
 
 		// edge values
-		for (int sl = 0; sl < SL; ++sl)
-		for (int tl = 0; std::min(sl,tl) < i && tl < TL; ++tl)
+		for (int sl = 0; sl <= SL; ++sl)
+		for (int tl = 0; std::min(sl,tl) < i && tl <= TL; ++tl)
 			KmemNext[sl][tl] = KPmemNext[sl][tl] = KPPmemNext[sl][tl] = 0;
 
-		for (int sl = i; sl < SL; ++sl)
-		for (int tl = i; tl < TL; ++tl){
+		for (int sl = i; sl <= SL; ++sl)
+		for (int tl = i; tl <= TL; ++tl){
 
 			// do K
 			{
-				double kpsum;
+				double kpsum = 0.0;
 				char x = s[sl-1];
 				for (int j = 0; j < tl; ++j) {
 					if (t[j] != x) continue;
@@ -209,7 +174,7 @@ int main(int argc, char const *argv[])
 				// kpp (sx, tu) = lambda^|u| * kpp (sx,t) if x does not occur in u.
 				char x = s[sl-1];
 				if (t[tl-1] != x)
-					KPPmemNext[sl][tl] = lambda * KPPmemPrev[sl][tl-1];
+					KPPmemNext[sl][tl] = lambda * KPPmemNext[sl][tl-1];
 				else
 					KPPmemNext[sl][tl] = lambda * ( KPPmemNext[sl][tl-1] + lambda*KPmemPrev[sl-1][tl-1] );
 				// double val = c * lambda * ( kpp(i,sl,tl-1) + lambda*kp(i-1,sl-1,tl-1) );
@@ -217,40 +182,58 @@ int main(int argc, char const *argv[])
 
 			// and at last KP
 			{
-				KPPmemNext[sl][tl] = lambda*KPmemNext[sl-1][tl] + KPPmemNext[sl][tl];
+
+				KPmemNext[sl][tl] = lambda*KPmemNext[sl-1][tl] + KPPmemNext[sl][tl];
 				// double val = lambda*kp(i, sl-1, tl) + kpp(i, sl, tl);
 			}
 
 
 		}
 
-		printf("K\n");
-		for (int sl = 0; sl < SL; ++sl){
-			for (int tl = 0; tl < TL; ++tl)
-				printf("%.1lf ", KmemNext[sl][tl]);
-			putchar('\n');
-		}
-		printf("KPP\n");
-		for (int sl = 0; sl < SL; ++sl){
-			for (int tl = 0; tl < TL; ++tl)
-				printf("%.1lf ", KPPmemNext[sl][tl]);
-			putchar('\n');
-		}
-		printf("KP\n");
-		for (int sl = 0; sl < SL; ++sl){
-			for (int tl = 0; tl < TL; ++tl)
-				printf("%.1lf ", KPmemNext[sl][tl]);
-			putchar('\n');
-		}
-		
 		// switch buffers for next iteration
 		switchMem();
 
 	}
 
-
 	// KmemPrev[SL-1][TL-1] should contain our sought after value
-	printf("%lf\n", KmemPrev[SL-1][TL-1]);
+	return KmemPrev[SL][TL];
+
+}
+
+int main(int argc, char const *argv[])
+{
+
+	if (argc == 1) {
+		printf("Usage:%s n filename1 filename2 [lambda]\nn: kernel parameter, number of letters to consider\nfilename1,filename2: paths to files to calculate the kernel for\nlambda: exponental falloff parameter, default value is %lf\n\nOr:\nn lambda\nsend strings through standard input as:\nsize_of_string_1\nstring_1\nsize_of_string_2\nstring_2\n",argv[0], DEFAULT_LAMBDA);
+		exit(1);
+	}
+
+	// read input
+
+	int SL,TL;
+	char *s, *t;
+	int n;
+	double lambda = DEFAULT_LAMBDA;
+	if (argc > 3)
+		readFromFile(argc,argv,SL,TL,s,t,n,lambda);
+	if (argc <= 3)
+		readFromStdin(argc,argv,SL,TL,s,t,n,lambda);
+
+	if (SL >= MAX_STRING_SIZE || TL >= MAX_STRING_SIZE){
+		std::cerr << "Only supports strings of size up to " << MAX_STRING_SIZE << "!\n";
+		exit(EXIT_FAILURE);
+	}
+
+	double K = getK(n, SL, TL, s, t, lambda);
+	double Ks = getK(n, SL, SL, s, s, lambda);
+	double Kt = getK(n, TL, TL, t, t, lambda);
+
+	K = K / sqrt( Ks*Kt );
+
+	fprintf(stderr, "%lf\n", K);
+
+	delete [] s;
+	delete [] t;
 
 	}
 		
