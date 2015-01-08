@@ -41,7 +41,7 @@ class Parser:
         self.__split = split_function
         self.__cached_articles = None
 
-    def articles(self, only_of_type=None):
+    def articles(self, only_of_type=None, with_topics=None, without_topics=None, limit_count_to=None):
         """
         Parse and return the articles in the reuters data set.
 
@@ -65,6 +65,15 @@ class Parser:
         articles = self.__cached_articles
         if only_of_type:
             articles = [article for article in articles if article.data_type == only_of_type]
+        if with_topics:
+            included_topics = with_topics
+            articles = [article for article in articles if all([topic in article.topics for topic in included_topics])]
+        if without_topics:
+            excluded_topics = without_topics
+            articles = [article for article in articles if
+                        all([topic not in article.topics for topic in excluded_topics])]
+        if limit_count_to or limit_count_to == 0:
+            articles = articles[0:limit_count_to]
         return articles
 
     @property

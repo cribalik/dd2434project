@@ -77,7 +77,7 @@ class TestParserIT(TestCase):
                     condition = False
         self.failUnlessEqual(len(all_text), 0)
 
-    def fetch_longest_body(self):
+    def fetchx_longest_body(self):
         parser = self.parser_stopwords_punctuation_removed_modapte
         test_articles = parser.articles(only_of_type=DataType.testing)
         training_articles = parser.articles(only_of_type=DataType.training)
