@@ -11,4 +11,4 @@ def mapa(docs):
 
 
 def kernel(k, conv):
-    return lambda x, y: k(conv[x], conv[y])
+    return lambda x, y: k(conv[x[0]], conv[y[0]])

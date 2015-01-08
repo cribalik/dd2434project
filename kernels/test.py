@@ -18,7 +18,7 @@ test_wk = wk.wk(wk.get_idf(docs))
 k = util.kernel(test_wk, conv)
 
 print test_wk(docs[0], docs[1])
-print k(1., 0.)
+print k([1.], [0.])
 
 #print test_wk(docs[1], docs[1])
 #print test_wk(docs[2], docs[2])
