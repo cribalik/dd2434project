@@ -123,19 +123,19 @@ void readFromStdin(int argc, char const* argv[], int& sl, int& tl, char*& s, cha
 
 // memoization.
 const int MAX_STRING_SIZE = 7000;
-double mem[6][MAX_STRING_SIZE][MAX_STRING_SIZE];
+double mem[4][MAX_STRING_SIZE][MAX_STRING_SIZE];
 typedef double (*Mem) [MAX_STRING_SIZE];
 Mem KPmemPrev = mem[0];
 Mem KPmemNext = mem[1];
-Mem KmemPrev = mem[2];
-Mem KmemNext = mem[3];
-Mem KPPmemPrev = mem[4];
-Mem KPPmemNext = mem[5];
+// Mem KmemPrev = mem[2];
+// Mem KmemNext = mem[3];
+Mem KPPmemPrev = mem[2];
+Mem KPPmemNext = mem[3];
 
 const double NOTSET = -1;
 
 void switchMem() {
-	std::swap(KmemPrev, KmemNext);
+	// std::swap(KmemPrev, KmemNext);
 	std::swap(KPmemPrev, KPmemNext);
 	std::swap(KPPmemPrev, KPPmemNext);
 }
@@ -148,28 +148,18 @@ double getK(const int n, const int SL, const int TL, const char* s, const char* 
 		KPmemPrev[i][j] = 1;
 
 
-	for (int i = 1; i <= n; ++i){
+	for (int i = 1; i < n; ++i){
 
 		// edge values
 		for (int sl = 0; sl <= SL; ++sl)
 		for (int tl = 0; std::min(sl,tl) < i && tl <= TL; ++tl)
-			KmemNext[sl][tl] = KPmemNext[sl][tl] = KPPmemNext[sl][tl] = 0;
+			KPmemNext[sl][tl] = KPPmemNext[sl][tl] = 0;
 
 		for (int sl = i; sl <= SL; ++sl)
 		for (int tl = i; tl <= TL; ++tl){
 
-			// do K
-			{
-				double kpsum = 0.0;
-				char x = s[sl-1];
-				for (int j = 0; j < tl; ++j) {
-					if (t[j] != x) continue;
-					kpsum += KPmemPrev[sl-1][j];// kp(i-1, sl-1, j);
-				}
-				KmemNext[sl][tl] = KmemNext[sl-1][tl] + kpsum*lambda*lambda; // k(i, sl-1, tl) + kpsum*lambda*lambda;
-			}
 
-			// now KPP
+			// do KPP
 			{
 				// kpp (sx, tu) = lambda^|u| * kpp (sx,t) if x does not occur in u.
 				char x = s[sl-1];
@@ -180,7 +170,7 @@ double getK(const int n, const int SL, const int TL, const char* s, const char* 
 				// double val = c * lambda * ( kpp(i,sl,tl-1) + lambda*kp(i-1,sl-1,tl-1) );
 			}
 
-			// and at last KP
+			// and KP
 			{
 
 				KPmemNext[sl][tl] = lambda*KPmemNext[sl-1][tl] + KPPmemNext[sl][tl];
@@ -195,8 +185,18 @@ double getK(const int n, const int SL, const int TL, const char* s, const char* 
 
 	}
 
-	// KmemPrev[SL-1][TL-1] should contain our sought after value
-	return KmemPrev[SL][TL];
+	// calculate K from values of k'
+	double kpsum = 0.0;
+	for (int sl = SL; sl >= n; --sl) {
+		char x = s[sl-1];
+		for (int j = 0; j < TL; ++j) {
+			if (t[j] != x) continue;
+			kpsum += KPmemPrev[sl-1][j];// kp(i-1, sl-1, j);
+		}
+	}
+	double K = lambda*lambda*kpsum; // k(i, sl-1, tl) + kpsum*lambda*lambda;
+
+	return K;
 
 }
 
