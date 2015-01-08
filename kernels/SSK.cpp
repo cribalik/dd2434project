@@ -127,15 +127,12 @@ double mem[4][MAX_STRING_SIZE][MAX_STRING_SIZE];
 typedef double (*Mem) [MAX_STRING_SIZE];
 Mem KPmemPrev = mem[0];
 Mem KPmemNext = mem[1];
-// Mem KmemPrev = mem[2];
-// Mem KmemNext = mem[3];
 Mem KPPmemPrev = mem[2];
 Mem KPPmemNext = mem[3];
 
 const double NOTSET = -1;
 
 void switchMem() {
-	// std::swap(KmemPrev, KmemNext);
 	std::swap(KPmemPrev, KPmemNext);
 	std::swap(KPPmemPrev, KPPmemNext);
 }
