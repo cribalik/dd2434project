@@ -122,7 +122,7 @@ void readFromStdin(int argc, char const* argv[], int& sl, int& tl, char*& s, cha
 }
 
 // memoization.
-const int MAX_STRING_SIZE = 7000;
+const int MAX_STRING_SIZE = 9000;
 double mem[4][MAX_STRING_SIZE][MAX_STRING_SIZE];
 typedef double (*Mem) [MAX_STRING_SIZE];
 Mem KPmemPrev = mem[0];
@@ -227,7 +227,7 @@ int main(int argc, char const *argv[])
 
 	K = K / sqrt( Ks*Kt );
 
-	fprintf(stderr, "%lf\n", K);
+	printf("%lf\n", K);
 
 	delete [] s;
 	delete [] t;
