@@ -1,4 +1,4 @@
-from data import *
+from dataset import *
 from unittest import TestCase
 
 __author__ = 'Daniel Schlaug'
