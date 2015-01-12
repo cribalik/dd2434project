@@ -1,4 +1,4 @@
 __author__ = 'Daniel Schlaug'
 
-from article import Article, DataType
-from parse import Parser
+from reuters.article import Article, DataType
+from reuters.parse import Parser
