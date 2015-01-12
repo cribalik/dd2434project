@@ -89,7 +89,7 @@ void readFromFile(int argc, char const *argv[],int& sl, int& tl, char*& s, char*
 
 	// get optional lambda
 	if (argc > 4)
-		lambda = atof(argv[4]);
+		lambda = atof(argv[argc-1]);
 	assert(lambda > 0 && lambda < 1);
 }
 
@@ -211,26 +211,74 @@ int main(int argc, char const *argv[])
 	char *s, *t;
 	int n;
 	double lambda = DEFAULT_LAMBDA;
-	if (argc > 3)
+	if (argc > 3) {
+
 		readFromFile(argc,argv,SL,TL,s,t,n,lambda);
-	if (argc <= 3)
+
+		for (int i = 0; i <= argc-5; ++i) {
+
+			if (SL >= MAX_STRING_SIZE || TL >= MAX_STRING_SIZE){
+				std::cerr << "Only supports strings of size up to " << MAX_STRING_SIZE << "!\n";
+				exit(EXIT_FAILURE);
+			}
+
+			double K = getK(n, SL, TL, s, t, lambda);
+			double Ks = getK(n, SL, SL, s, s, lambda);
+			double Kt = getK(n, TL, TL, t, t, lambda);
+
+			K = K / sqrt( Ks*Kt );
+
+			printf("%lf\n", K);
+
+			delete [] t;
+
+			if (i != argc-5){
+				// Open files
+				FILE* tf = fopen(argv[4+i],"r");
+
+				// get length of files
+				fseek(tf, 0L, SEEK_END);
+				TL = ftell(tf);
+				fseek(tf, 0L, SEEK_SET);
+
+				// allocate memory
+				t = new char[TL + 1];
+
+				// read files into RAM
+				int num_read = fread((void*) t, sizeof(char), TL, tf);
+				assert(num_read == TL);
+
+				// add null termination to strings
+				t[TL] = '\0';
+			}
+
+		}
+
+		delete [] s;
+
+	}
+
+
+
+	else if (argc <= 3){
 		readFromStdin(argc,argv,SL,TL,s,t,n,lambda);
 
-	if (SL >= MAX_STRING_SIZE || TL >= MAX_STRING_SIZE){
-		std::cerr << "Only supports strings of size up to " << MAX_STRING_SIZE << "!\n";
-		exit(EXIT_FAILURE);
+		if (SL >= MAX_STRING_SIZE || TL >= MAX_STRING_SIZE){
+			std::cerr << "Only supports strings of size up to " << MAX_STRING_SIZE << "!\n";
+			exit(EXIT_FAILURE);
+		}
+
+		double K = getK(n, SL, TL, s, t, lambda);
+		double Ks = getK(n, SL, SL, s, s, lambda);
+		double Kt = getK(n, TL, TL, t, t, lambda);
+
+		K = K / sqrt( Ks*Kt );
+
+		printf("%lf\n", K);
+
+		delete [] t;
+		delete [] s;
 	}
 
-	double K = getK(n, SL, TL, s, t, lambda);
-	double Ks = getK(n, SL, SL, s, s, lambda);
-	double Kt = getK(n, TL, TL, t, t, lambda);
-
-	K = K / sqrt( Ks*Kt );
-
-	printf("%lf\n", K);
-
-	delete [] s;
-	delete [] t;
-
-	}
+}
 		

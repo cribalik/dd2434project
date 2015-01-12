@@ -12,7 +12,7 @@ def SSK(n, plambda, str1, str2):
     
     # Check if the kernel module has been compiled
     if not os.path.isfile(os.path.join(__m_dir, "SSK.out")):
-        print "calling 'make' to compile SSK module"
+        print("calling 'make' to compile SSK module")
         with open(os.devnull, 'w') as devnull:
             subprocess.call(["make", "--directory=" + __m_dir, "SSK.out"], stdout=devnull, stderr=devnull);
     
@@ -26,7 +26,7 @@ def SSK(n, plambda, str1, str2):
 def SSKfile(n, file1, file2, plambda=0.5):
     # Check if the kernel module has been compiled
     if not os.path.isfile(os.path.join(__m_dir, "SSK.out")):
-        print "calling 'make' to compile SSK module"
+        print("calling 'make' to compile SSK module")
         with open(os.devnull, 'w') as devnull:
             subprocess.call(["make", "--directory=" + __m_dir, "SSK.out"], stdout=devnull, stderr=devnull);
 
@@ -35,4 +35,4 @@ def SSKfile(n, file1, file2, plambda=0.5):
 
 
 if __name__ == '__main__':
-    print SSK(2, 0.5, "cat", "car");
+    print(SSK(2, 0.5, "cat", "car"))
