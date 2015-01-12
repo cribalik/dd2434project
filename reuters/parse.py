@@ -5,8 +5,8 @@ __author__ = 'Daniel Schlaug'
 import os
 import re
 
-from article import Article
-from article import DataType
+from reuters.article import Article
+from reuters.article import DataType
 from reuters import split
 
 from lxml import etree

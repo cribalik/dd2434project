@@ -2,7 +2,7 @@ from lxml import etree
 
 __author__ = 'Daniel Schlaug'
 
-from article import DataType
+from reuters.article import DataType
 
 def modapte(reuter_element):
     """
