@@ -7,8 +7,8 @@ __m_dir = os.path.dirname(os.path.abspath(__file__));
 # Calculate SSK with parameters n and plambda for the strings str1 and str2
 def SSK(n, plambda, str1, str2):
     
-    if len(str1) >= 7000 or len(str2) >= 7000:
-        raise ValueError("Only strings below 7000 characters are supported! For reuter this should never happen, if you need this expanded, contact Christopher ;)")
+    if len(str1) >= 9000 or len(str2) >= 9000:
+        raise ValueError("Only strings below 9000 characters are supported! For reuter this should never happen, if you need this expanded, contact Christopher ;)")
     
     # Check if the kernel module has been compiled
     if not os.path.isfile(os.path.join(__m_dir, "SSK.out")):

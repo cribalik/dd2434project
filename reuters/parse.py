@@ -13,7 +13,8 @@ from lxml import etree
 
 
 class Parser:
-    def __init__(self, reuters_location, remove_stopwords=True, remove_punctuation=True, split_function=split.modapte):
+    def __init__(self, reuters_location, remove_stopwords=True, remove_punctuation=True, remove_pattern=r"\d",
+                 split_function=split.modapte):
         """
         Create a new parser for the Reuters data set.
 
@@ -36,10 +37,11 @@ class Parser:
         self.__remove_punctuation = remove_punctuation
         self.__stop_list = None
         self.__punctuation_pattern = re.compile(r'[^\w\s]')
+        self.__remove_pattern = re.compile(remove_pattern) if remove_pattern else False
         self.__split = split_function
         self.__cached_articles = None
 
-    def articles(self, only_of_type=None):
+    def articles(self, only_of_type=None, with_topics=None, without_topics=None, limit_count_to=None):
         """
         Parse and return the articles in the reuters data set.
 
@@ -63,6 +65,15 @@ class Parser:
         articles = self.__cached_articles
         if only_of_type:
             articles = [article for article in articles if article.data_type == only_of_type]
+        if with_topics:
+            included_topics = with_topics
+            articles = [article for article in articles if all([topic in article.topics for topic in included_topics])]
+        if without_topics:
+            excluded_topics = without_topics
+            articles = [article for article in articles if
+                        all([topic not in article.topics for topic in excluded_topics])]
+        if limit_count_to or limit_count_to == 0:
+            articles = articles[0:limit_count_to]
         return articles
 
     @property
@@ -87,7 +98,7 @@ class Parser:
             sgm_file.readline()
             file_contents = sgm_file.read()
 
-        file_contents = re.sub(r'...&#5;&#30;', '', file_contents) # Hack to get past nasty character in reut2-017.sgm
+        file_contents = re.sub(r'...&#5;&#30;', '', file_contents)  # Hack to get past nasty character in reut2-017.sgm
         file_contents = "<articles>" + file_contents + "</articles>"
         try:
             xml_tree = etree.fromstring(file_contents, resilient_parser)
@@ -117,8 +128,10 @@ class Parser:
 
     def __scrub(self, text):
         if self.__remove_punctuation:
-            text = re.sub(r'\s+', ' ', text)
             text = re.sub(self.__punctuation_pattern, '', text)
+            if self.__remove_pattern:
+                text = re.sub(self.__remove_pattern, '', text)
+            text = re.sub(r'\s+', ' ', text)
         if self.__remove_stopwords:
             stopwords = self.stop_list
             text = ' '.join([word for word in text.lower().split() if word not in stopwords])
