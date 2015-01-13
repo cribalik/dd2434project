@@ -41,8 +41,9 @@ def SSKfiles(n, a, b, plambda=0.5):
         with open(os.devnull, 'w') as devnull:
             subprocess.call(["make", "--directory=" + __m_dir, "SSK.out"], stdout=devnull, stderr=devnull);
 
-    s = subprocess.check_output([os.path.join(__m_dir, "SSK.out"), str(n), a, b, str(plambda)]);
-    return s.split(' \n');
+    parameters = [os.path.join(__m_dir, "SSK.out"), str(n), a] + b + [str(plambda)]
+    s = subprocess.check_output(parameters);
+    return s.split('\n');
 
 
 if __name__ == '__main__':
