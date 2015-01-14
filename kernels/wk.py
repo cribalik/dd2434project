@@ -7,36 +7,41 @@ __author__ = 'Pontus'
 # docstring1 and docstring2 are document strings in docs
 # idf = get_idf(docs)
 # wk(idf)(docstring1, docstring2)
+
+
 def wkernel(x, y, idf):
-    xw = x.split(" ")
-    yw = y.split(" ")
-    tf = {}
+    wx = x.split(" ")
+    wy = y.split(" ")
+    words_in_x = dict()
+    words_in_y = dict()
+    tf_idf_words_in_y = dict()
+    tf_idf_words_in_x = dict()
 
-    for w in xw:
-        tf[w] = 0.
-    for w in yw:
-        tf[w] = 0.
-    xtf = tf.copy()
-    ytf = tf.copy()
+    for word in wx:
+        if word not in words_in_x:
+            words_in_x[word] = 0
+        words_in_x[word] += 1
 
-    #getting tf
-    for w in xw:
-        if w in xtf:
-            xtf[w] += 1.
+    for word in wy:
+        if word not in words_in_y:
+            words_in_y[word] = 0
+        words_in_y[word] += 1
+
+    words_from_both = set(words_in_x.keys()).union(set(words_in_y.keys()))
+
+    for key in words_from_both:
+        print key
+        if key in words_in_y:
+            tf_idf_words_in_y[key] = math.log(1. + words_in_y[key]) * math.log(idf[key])
         else:
-            xtf[w] = 1.
+            tf_idf_words_in_y[key] = 0.
 
-    for w in yw:
-        if w in ytf:
-            ytf[w] += 1.
+        if key in words_in_x:
+            tf_idf_words_in_x[key] = math.log(1. + words_in_x[key]) * math.log(idf[key])
         else:
-            ytf[w] = 1.
+            tf_idf_words_in_x[key] = 0.
 
-    for key in tf:
-        ytf[key] = ytf[key] * idf[key]
-        xtf[key] = xtf[key] * idf[key]
-
-    return 1 - spatial.distance.cosine(xtf.values(), ytf.values())
+    return 1 - spatial.distance.cosine(tf_idf_words_in_x.values(), tf_idf_words_in_y.values())
 
 
 def wk(idf):
@@ -60,6 +65,6 @@ def get_idf(docs):
     n = len(docs)
     df = get_df(docs)
     for key in df:
-        df[key] = math.log(n/df[key])
+        df[key] = n/df[key]
     return df
 
