@@ -99,7 +99,7 @@ void readFromStdin(int argc, char const* argv[], int& sl, int& tl, char*& s, cha
 	assert(n >= 1);
 
 	// get optional lambda
-	if (argc == 2)
+	if (argc > 2)
 		lambda = atof(argv[2]);
 	assert(lambda > 0 && lambda < 1);
 
