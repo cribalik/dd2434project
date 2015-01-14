@@ -1,9 +1,14 @@
+import os
+
 import numpy as np
+from kernels.SSK import SSK
 
 from .stringkernel import StringKernel
 
 
 __author__ = 'Daniel Schlaug'
+
+_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class SubSequenceStringKernel(StringKernel):
@@ -20,10 +25,10 @@ class SubSequenceStringKernel(StringKernel):
         return ["length", "weight_decay"]
 
     def evaluate_for(self, string1, string2):
-        pass
+        return SSK(self.__length, self.__weight_decay, string1, string2)
 
     def gram_matrix(self, row_arguments, column_arguments):
-        path_prefix = "kernels/precomputed/done/SSK"
+        path_prefix = os.path.join(_dir, "precomputed/done/SSK")
         testing_filename_flag = "-2"
         training_filename_flag = ""
         weight_decay_filename_prefix = "-lambda"
@@ -35,18 +40,14 @@ class SubSequenceStringKernel(StringKernel):
             path = path_prefix + training_filename_flag + length_filename_prefix + str(
                 length) + weight_decay_filename_prefix + str(weight_decay) + path_suffix
             gram_matrix = self.__import_matrix(path)
-            assert np.size(gram_matrix) == (380, 380)
         elif len(row_arguments) == 90 and len(column_arguments) == 380:
             path = path_prefix + testing_filename_flag + length_filename_prefix + str(
                 length) + weight_decay_filename_prefix + str(weight_decay) + path_suffix
             gram_matrix = self.__import_matrix(path)
-            assert np.size(gram_matrix) == (90, 380)
         elif len(row_arguments) == 380 and len(column_arguments) == 90:
             path = path_prefix + testing_filename_flag + length_filename_prefix + str(
                 length) + weight_decay_filename_prefix + str(weight_decay) + path_suffix
-            gram_matrix = self.__import_matrix(path)
-            assert np.size(gram_matrix) == (90, 380)
-            return gram_matrix.T
+            gram_matrix = self.__import_matrix(path).T
         else:
             raise Exception("Not implemented for non-precomputed matrices")
         return gram_matrix
@@ -56,8 +57,6 @@ class SubSequenceStringKernel(StringKernel):
         matrix = []
         row = []
         for line in file:
-            if file.find(','):
-                return np.loadtxt(file, delimiter=",", skiprows=1)
             try:
                 value = float(line)
                 row.append(value)
