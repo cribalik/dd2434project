@@ -18,3 +18,8 @@ align = kernel_approx.alignment(approxKern, exactKern)
 
 #alignExact bor vara = 1
 alignExact = kernel_approx.alignment(exactKern, exactKern)
+
+print(approxKern)
+print(exactKern)
+print(align)
+print(alignExact)

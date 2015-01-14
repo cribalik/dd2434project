@@ -86,11 +86,24 @@ def approxKernelSSK(S, n, x, sskn, sskl):
 				tmp += SSK.SSK(sskn, sskl, S[i], st) * SSK.SSK(sskn, sskl, S[j], st)
 			ret[i,j] = tmp
 	return ret
-
+	
+def approxKernelSSKalt(S, n, x, sskn, sskl):
+	ret = np.zeros((len(S), len(S)))
+	for i in range(0, len(S)):
+		print("Calculating approx row %r" % i)
+		for j in range(0, len(S)):
+			tmp = 0
+			s = getSubset([S[i], S[j]], n, x)
+			print(len(s))
+			for st in s:
+				tmp += SSK.SSK(sskn, sskl, S[i], st) * SSK.SSK(sskn, sskl, S[j], st)
+			ret[i,j] = tmp
+	return ret
 # Returnerar en exakt Gram-matris
 def exactGramSSK(S, sskn, sskl):
 	ret = np.zeros((len(S), len(S)))
 	for i in range(0, len(S)):
+		print("Calculating exact row %r" % i)
 		for j in range(0, len(S)):
 			ret[i,j] = SSK.SSK(sskn, sskl, S[i], S[j])
 	return ret
