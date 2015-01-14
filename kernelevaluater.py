@@ -52,7 +52,7 @@ class KernelEvaluater:
     def __latex_header(rows):
         row = rows[0]
         prefix = ""
-        items = " & ".join([str(key).title() for key in row.keys()])
+        items = " & ".join([str(key).replace('_', ' ').title() for key in row.keys()])
         suffix = ""
         return prefix + items + suffix
 
@@ -68,7 +68,7 @@ class KernelEvaluater:
         elif output_format == OutputFormat.latex:
             header = KernelEvaluater.__latex_header(rows)
 
-            lines = [" & ".join([str(value) for value in row.values()]) for row in rows]
+            lines = [" & ".join(["%.4f" % value if type(value) is float else str(value) for value in row.values()]) for row in rows]
             return " \\\\\n".join([header] + lines)
 
     @staticmethod
