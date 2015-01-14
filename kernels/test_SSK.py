@@ -14,6 +14,7 @@ class TestSSK(TestCase):
         os.remove(os.path.join(_dir, "SSK.out"))
         self.failUnlessAlmostEqual(SSK(2, 0.5, "car", "cat"), 0.444444444, places=6)
         expected_result_for_length = [
+            # As given in the paper
             (1, 0.849),
             (2, 0.580),
             (3, 0.478),
