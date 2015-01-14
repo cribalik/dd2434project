@@ -12,6 +12,9 @@ class Topics(Enum):
     crude = 'crude'
     corn = 'corn'
 
+    @staticmethod
+    def values():
+        return [topic.value for topic in Topics]
 
 class Dataset:
     """
