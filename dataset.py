@@ -7,10 +7,10 @@ __author__ = 'Daniel Schlaug'
 
 
 class Topics(Enum):
-    earn = 'earn'
     acquisition = 'acq'
-    crude = 'crude'
     corn = 'corn'
+    crude = 'crude'
+    earn = 'earn'
 
     @staticmethod
     def values():
