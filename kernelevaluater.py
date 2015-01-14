@@ -28,8 +28,7 @@ class KernelEvaluater:
         return kernel_arg_name
 
     def confusion_matrix(self, kernel, kernel_kwargs, topic):
-        n = kernel_kwargs['n']
-        kernel = kernel(n)
+        kernel = kernel(**kernel_kwargs)
         test_bodies = [article.body for article in self.test_data]
         training_bodies = [article.body for article in self.training_data]
         training_training_gram_matrix = kernel.gram_matrix(training_bodies, training_bodies)
