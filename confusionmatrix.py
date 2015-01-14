@@ -60,10 +60,14 @@ class ConfusionMatrix:
 
     @property
     def precision(self):
+        if self.positive == 0:
+            return 1
         return self.true_positive / self.positive
 
     @property
     def recall(self):
+        if self.true == 0:
+            return 1
         return self.true_positive / self.true
 
     @property
