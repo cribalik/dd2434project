@@ -1,5 +1,5 @@
 import numpy as np
-import SSK
+from . import SSK
 from math import sqrt
 
 # Beraknar inre Frobeniusprodukten mellan tva Gram-matriser
