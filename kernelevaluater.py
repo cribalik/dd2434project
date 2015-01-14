@@ -1,14 +1,12 @@
-
 from collections import OrderedDict
+
 from enum import Enum
+
 from sklearn import svm
 
 from confusionmatrix import ConfusionMatrix
+
 from dataset import Topics
-
-from kernels import NGramsStringKernel
-
-import numpy as np
 
 __author__ = 'Daniel Schlaug'
 
@@ -25,27 +23,24 @@ class KernelEvaluater:
         self.kernels = kernels
         self.topics = topics
 
-    def __kernel_arg_name(self, kwargs):
-        kernel_arg_name = self.varying_kernel_args.keys()[0]
-        kernel_arg_name = kernel_arg_name.replace('_', ' ').capitalize()
-        return kernel_arg_name
-
     def confusion_matrix(self, kernel, kernel_kwargs, topic):
         valid_kernel_kwargs = KernelEvaluater.__remove_args_not_understood_by_kernel(kernel, kernel_kwargs)
-        assert set(valid_kernel_kwargs.keys()) == set(kernel.understood_arguments()), "Kernel %s got arguments %s, expected %s" % (kernel.name, valid_kernel_kwargs.keys(), kernel.understood_arguments())
+        assert set(valid_kernel_kwargs.keys()) == set(
+            kernel.understood_arguments()), "Kernel %s got arguments %s, expected %s" % (
+            kernel.name, valid_kernel_kwargs.keys(), kernel.understood_arguments())
         kernel = kernel(**valid_kernel_kwargs)
         test_bodies = [article.body for article in self.test_data]
         training_bodies = [article.body for article in self.training_data]
         training_training_gram_matrix = kernel.gram_matrix(training_bodies, training_bodies)
         testing_training_gram_matrix = kernel.gram_matrix(row_arguments=test_bodies, column_arguments=training_bodies)
         training_classifications = [topic in article.topics for article in self.training_data]
+        assert_topic_order(self.training_data)
         assert all(classification in training_classifications for classification in [True, False])
         support_vector_machine = svm.SVC(kernel='precomputed')
         support_vector_machine.fit(training_training_gram_matrix, training_classifications)
         expected_classifications = [topic in article.topics for article in self.test_data]
+        assert_topic_order(self.test_data)
         actual_classifications = support_vector_machine.predict(testing_training_gram_matrix)
-        # expected_classifications = [classification == 1 for classification in expected_classifications]
-        # actual_classifications = [classification == 1 for classification in actual_classifications]
         return ConfusionMatrix.from_classifications(expected_classifications, actual_classifications)
 
     @staticmethod
@@ -68,7 +63,8 @@ class KernelEvaluater:
         elif output_format == OutputFormat.latex:
             header = KernelEvaluater.__latex_header(rows)
 
-            lines = [" & ".join(["%.4f" % value if type(value) is float else str(value) for value in row.values()]) for row in rows]
+            lines = [" & ".join(["%.4f" % value if type(value) is float else str(value) for value in row.values()]) for
+                     row in rows]
             return " \\\\\n".join([header] + lines)
 
     @staticmethod
@@ -114,3 +110,12 @@ class KernelEvaluater:
         row["precision"] = confusion_matrix.precision
         row["recall"] = confusion_matrix.recall
         return row
+
+
+def assert_topic_order(articles):
+    seen_topics = []
+    for article in articles:
+        topic = [topic for topic in article.topics if topic in Topics.values()][0]
+        if len(seen_topics) == 0 or seen_topics[-1] != topic:
+            seen_topics.append(topic)
+    assert seen_topics == Topics.values()
