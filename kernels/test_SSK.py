@@ -26,9 +26,9 @@ class TestSSK(TestCase):
         str1 = "science is organized knowledge"
         str2 = "wisdom is organized life"
 
-        for plambda in linspace(0, 1, 10):
-            for length, expected_result in expected_result_for_length:
-                actual_result = SSK(length, plambda, str1, str2)
 
-                self.assertAlmostEqual(expected_result, actual_result, delta=0.001,
-                                       msg="Failed for length %i. %f != %f" % (length, actual_result, expected_result))
+        for length, expected_result in expected_result_for_length:
+            actual_result = SSK(length, 0.5, str1, str2)
+
+            self.assertAlmostEqual(expected_result, actual_result, delta=0.001,
+                                   msg="Failed for length %i. %f != %f" % (length, actual_result, expected_result))
