@@ -1,7 +1,7 @@
 # coding=utf-8
 import math
 
-from scipy import spatial
+import numpy
 
 
 __author__ = 'Pontus'
@@ -45,7 +45,20 @@ def ngkernel(x, y, n, weighted=True):
         weighted_x = [math.log(n_grams_in_x[key] + 1.) if key in n_grams_in_x else 0 for key in n_grams_from_both]
         weighted_y = [math.log(n_grams_in_y[key] + 1.) if key in n_grams_in_y else 0 for key in n_grams_from_both]
 
-        return 1 - spatial.distance.cosine(weighted_x, weighted_y)
+        return -log_cosine_distance(weighted_x, weighted_y)
+
+
+def log_cosine_distance(vector1, vector2):
+    try:
+        dot = numpy.dot(vector1, vector2)
+        if dot == 0:
+            return float('inf')
+        norms = numpy.linalg.norm(vector1) * numpy.linalg.norm(vector2)
+        log_cosine_dist = math.log(dot) - math.log(norms)
+    except Exception as e:
+        print(e)
+        print((vector1, vector2))
+    return log_cosine_dist
 
 
 def ngk(n):
