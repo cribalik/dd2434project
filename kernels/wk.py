@@ -28,10 +28,10 @@ def wkernel(x, y, idf):
     words_from_both = set(words_in_x.keys()).union(set(words_in_y.keys()))
 
     words_from_both = list(words_from_both)
-    weighted_x = [math.log(math.log(1. + words_in_x[key]) * math.log(idf[key])) if key in words_in_x else 0. for key in words_from_both]
-    weighted_y = [math.log(math.log(1. + words_in_y[key]) * math.log(idf[key])) if key in words_in_y else 0. for key in words_from_both]
+    weighted_x = [math.log(1. + words_in_x[key]) * math.log(idf[key]) if key in words_in_x else 0. for key in words_from_both]
+    weighted_y = [math.log(1. + words_in_y[key]) * math.log(idf[key]) if key in words_in_y else 0. for key in words_from_both]
 
-    return 1.-spatial.distance.cosine(weighted_x, weighted_y)
+    return spatial.distance.cosine(weighted_x, weighted_y)
 
 
 def wk(idf):
