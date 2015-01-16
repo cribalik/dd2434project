@@ -14,8 +14,6 @@ def wkernel(x, y, idf):
     wy = y.split(" ")
     words_in_x = dict()
     words_in_y = dict()
-    tf_idf_words_in_y = dict()
-    tf_idf_words_in_x = dict()
 
     for word in wx:
         if word not in words_in_x:
@@ -29,19 +27,11 @@ def wkernel(x, y, idf):
 
     words_from_both = set(words_in_x.keys()).union(set(words_in_y.keys()))
 
-    for key in words_from_both:
-        print key
-        if key in words_in_y:
-            tf_idf_words_in_y[key] = math.log(1. + words_in_y[key]) * math.log(idf[key])
-        else:
-            tf_idf_words_in_y[key] = 0.
+    words_from_both = list(words_from_both)
+    weighted_x = [math.log(math.log(1. + words_in_x[key]) * math.log(idf[key])) if key in words_in_x else 0. for key in words_from_both]
+    weighted_y = [math.log(math.log(1. + words_in_y[key]) * math.log(idf[key])) if key in words_in_y else 0. for key in words_from_both]
 
-        if key in words_in_x:
-            tf_idf_words_in_x[key] = math.log(1. + words_in_x[key]) * math.log(idf[key])
-        else:
-            tf_idf_words_in_x[key] = 0.
-
-    return 1 - spatial.distance.cosine(tf_idf_words_in_x.values(), tf_idf_words_in_y.values())
+    return 1.-spatial.distance.cosine(weighted_x, weighted_y)
 
 
 def wk(idf):
