@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 
 from reuters import Parser, DataType
@@ -5,6 +6,7 @@ from reuters import Parser, DataType
 
 __author__ = 'Daniel Schlaug'
 
+_dir = os.path.dirname(os.path.abspath(__file__))
 
 class Topics(Enum):
     acquisition = 'acq'
@@ -22,7 +24,7 @@ class Dataset:
     dataset = Dataset()
     acquisition_training_set = dataset.get_data(DataType.training, Topics.acquisition)
     """
-    def __init__(self, reuters_path="data/reuters21578"):
+    def __init__(self, reuters_path=os.path.join(_dir, "data/reuters21578")):
         self.parser = Parser(reuters_path)
 
     def get_data(self, topic, data_type):
