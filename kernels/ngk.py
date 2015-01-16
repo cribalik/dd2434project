@@ -42,10 +42,10 @@ def ngkernel(x, y, n, weighted=True):
         n_grams_from_both = set(n_grams_in_x.keys()).union(set(n_grams_in_y.keys()))
         n_grams_from_both = list(n_grams_from_both)
 
-        weighted_x = [math.log(math.log(n_grams_in_x[key] + 1.)) if key in n_grams_in_x else 0 for key in n_grams_from_both]
-        weighted_y = [math.log(math.log(n_grams_in_y[key] + 1.)) if key in n_grams_in_y else 0 for key in n_grams_from_both]
+        weighted_x = [math.log(n_grams_in_x[key] + 1.) if key in n_grams_in_x else 0 for key in n_grams_from_both]
+        weighted_y = [math.log(n_grams_in_y[key] + 1.) if key in n_grams_in_y else 0 for key in n_grams_from_both]
 
-        return 1 - spatial.distance.cosine(weighted_x, weighted_y)
+        return spatial.distance.cosine(weighted_x, weighted_y)
 
 
 def ngk(n):
