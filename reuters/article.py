@@ -9,7 +9,7 @@ class DataType(Enum):
     unused = 3
 
 class Article:
-    def __init__(self, body, topics, data_type):
+    def __init__(self, body, topics, data_type, id):
         """
         Create a new article.
 
@@ -24,6 +24,7 @@ class Article:
         self.__body = body
         self.__topics = topics
         self.__data_type = data_type
+        self.__id = id
 
     @property
     def body(self):
@@ -45,3 +46,10 @@ class Article:
         :rtype : DataType
         """
         return self.__data_type
+
+    @property
+    def id(self):
+        """
+        :rtype : str
+        """
+        return self.__id

@@ -121,10 +121,11 @@ class Parser:
         topics = reuters_element.xpath('.//TOPICS/D/text()')
         body_texts = reuters_element.xpath('.//TEXT/text() | .//TEXT/TITLE/text() | .//TEXT/BODY/text()')
         body = '\n'.join(body_texts)
+        id = reuters_element.get('NEWID')
         scrubbed_body = self.__scrub(body)
         if len(scrubbed_body) == 0:
             print("Warning: Empty element: %r" % etree.tostring(reuters_element))
-        return Article(topics=topics, body=scrubbed_body, data_type=data_type)
+        return Article(topics=topics, body=scrubbed_body, data_type=data_type, id=id)
 
     def __scrub(self, text):
         if self.__remove_punctuation:
