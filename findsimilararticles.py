@@ -1,19 +1,21 @@
 import numpy
 from dataset import Dataset
-from kernels import SubSequenceStringKernel
+from kernels import SubSequenceStringKernel, NGramsStringKernel
 from reuters import DataType
 
 __author__ = 'Daniel Schlaug'
 
 dataset = Dataset()
 training = dataset.get_data(topic=None, data_type=DataType.training)
+training_bodies = [article.body for article in training]
 
-length = 5
+length = 14
 weight_decay = 0.01
 
-ssk = SubSequenceStringKernel(length, weight_decay)
+kernel = SubSequenceStringKernel(length, weight_decay)
+kernel = NGramsStringKernel(length)
 
-gram = ssk.gram_matrix(training, training)
+gram = kernel.gram_matrix(training_bodies, training_bodies)
 results = []
 for _ in range(0, 100):
     max_similarity = gram[0, 1]
@@ -21,7 +23,7 @@ for _ in range(0, 100):
     for row in range(0, 380):
         for column in range(0, 380):
             similarity = gram[row, column]
-            if similarity == 1:
+            if row == column or similarity == 1:
                 continue
             if similarity > max_similarity:
                 max_similarity = similarity
