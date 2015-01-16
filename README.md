@@ -21,7 +21,7 @@ http://www.daviddlewis.com/resources/testcollections/reuters21578/
  * Hitta en implementation av SVM. ( Friess et al., 1998; Cristianini and Shawe-Taylor, 2000 )
 
 ##Dependencies
-Code is written in python 2.7 with the following libraries (available from pip)
+Code (except the SSK) is written in python 2.7 with the following libraries (available from pip)
 
 enum34
 numpy
@@ -29,3 +29,5 @@ scikit-learn
 nltk
 lxml
 beautifulsoup4
+
+The SSK is written in C++
