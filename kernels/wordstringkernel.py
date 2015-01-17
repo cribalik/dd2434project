@@ -1,26 +1,38 @@
 # coding=utf-8
+from dataset import Dataset
 from kernels import StringKernel
+from kernels import wk, gram
+from reuters import DataType
 
 __author__ = 'David Strömberg'
 
 
 class WordStringKernel(StringKernel):
+    
     def __init__(self):
-        # Calculate idf and stuff using Pontus' functions.
-        pass
+        self.__idf_cached = None
+
+    @property
+    def __idf(self):
+        if self.__idf_cached is None:
+            dataset = Dataset()
+            docs = dataset.get_data(topic=None, data_type=DataType.training) + \
+                   dataset.get_data(topic=None, data_type=DataType.testing)
+            docs = [article.body for article in docs]
+            self.__idf_cached = wk.get_idf(docs)
+
 
     def gram_matrix(self, row_arguments, column_arguments):
-        pass
+        return gram.gram(column_arguments, row_arguments, wk.wk(self.__idf))
+
 
     def evaluate_for(self, string1, string2):
-        pass
+        return wk.wkkernel(string1, string2, self.__idf)
 
     @staticmethod
     def name():
-        # This name will show in our tables
-        pass
+        return 'Word Kernel (WK)'
 
     @staticmethod
     def understood_arguments():
-        # A string containing the exact arguments of __init__()
-        pass
+        return []
