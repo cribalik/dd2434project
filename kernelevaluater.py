@@ -1,8 +1,10 @@
 from collections import OrderedDict
 from multiprocessing.pool import Pool
+import traceback
 
 from enum import Enum
 from sklearn import svm
+import sys
 
 from confusionmatrix import ConfusionMatrix
 from dataset import Topics
@@ -38,12 +40,16 @@ def confusion_matrix_from(test_data, training_data, kernel, kernel_kwargs, topic
 
 
 def _get_row_for_kernel(test_data, training_data, kernel, kernel_kwargs, topic):
-    confusion_matrix = confusion_matrix_from(test_data, training_data, kernel, kernel_kwargs, topic)
-    row = OrderedDict([("topic", topic), ("kernel", kernel.name())] + kernel_kwargs.items())
-    row["f1"] = confusion_matrix.f1
-    row["precision"] = confusion_matrix.precision
-    row["recall"] = confusion_matrix.recall
-    return row
+    try:
+        confusion_matrix = confusion_matrix_from(test_data, training_data, kernel, kernel_kwargs, topic)
+        row = OrderedDict([("topic", topic), ("kernel", kernel.name())] + kernel_kwargs.items())
+        row["f1"] = confusion_matrix.f1
+        row["precision"] = confusion_matrix.precision
+        row["recall"] = confusion_matrix.recall
+        return row
+    except:
+        # Put all exception text into an exception and raise that
+        raise Exception("".join(traceback.format_exception(*sys.exc_info())))
 
 
 class KernelEvaluater:
