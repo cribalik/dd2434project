@@ -22,7 +22,7 @@ ngkgram = ngk.gram_matrix(training_bodies, testing_bodies)
 results = []
 
 used_coordinates = set()
-for _ in range(0, 10):
+for _ in range(0, 100):
     max_advantage = sskgram[0, 0] - ngkgram[0, 0]
     best_coordinates = (0, 0)
     for row in range(0, 380):
