@@ -138,13 +138,16 @@ void print( double (*m) [MAX_STRING_SIZE], int n, int SL) {
 	std::cerr << '\n';
 }
 
-double getK(const int n, const int SL, const int TL, const char* s, const char* t, double lambda) {
+std::vector<double> getK(const std::vector<int>& k_to_calculate, const int SL, const int TL, const char* s, const char* t, double lambda) {
 	static double mem[4][MAX_K][MAX_STRING_SIZE];
 	typedef double (*Mem) [MAX_STRING_SIZE];
 	Mem KPmemPrev = mem[0];
 	Mem KPmemNext = mem[1];
 	Mem KPPmemPrev = mem[2];
 	Mem KPPmemNext = mem[3];
+
+	int n = *std::max_element(k_to_calculate.begin(), k_to_calculate.end());
+	std::vector<double> k(k_to_calculate.size(), 0.0);
 
 	// init KP
 	for (int sl = 0; sl <= SL; ++sl)
@@ -154,7 +157,6 @@ double getK(const int n, const int SL, const int TL, const char* s, const char* 
 	for (int sl = 0; sl <= SL; ++sl)
 		KPmemPrev[i][sl] = KPPmemPrev[i][sl] = 0;
 
-	double kpsum = 0.0;
 
 	for (int tl = 1; tl < TL; ++tl){
 
@@ -208,12 +210,15 @@ double getK(const int n, const int SL, const int TL, const char* s, const char* 
 		// print(KPmemNext, n, SL);
 
 		// calculate K from values of k'
-		for (int sl = SL; sl >= n; --sl) {
-			const char x = s[sl-1];
-			if (t[tl] == x) {
-				kpsum += KPmemNext[n-1][sl-1]; // kp(i-1, sl-1, j);
-				// std::cerr << "+\n";
-				// std::cerr << x << ' ' << t[tl] << ' ' << sl << ' ' << tl << ' ' << KPmemNext[n-1][sl-1] << '\n';
+		for (std::size_t idx = 0; idx < k_to_calculate.size(); ++idx) {
+			int i = k_to_calculate[idx];
+			for (int sl = SL; sl >= i; --sl) {
+				const char x = s[sl-1];
+				if (t[tl] == x) {
+					k[idx] += KPmemNext[i-1][sl-1]; // kp(i-1, sl-1, j);
+					// std::cerr << "+\n";
+					// std::cerr << x << ' ' << t[tl] << ' ' << sl << ' ' << tl << ' ' << KPmemNext[n-1][sl-1] << '\n';
+				}
 			}
 		}
 		// std::cerr << kpsum << std::endl;
@@ -228,10 +233,10 @@ double getK(const int n, const int SL, const int TL, const char* s, const char* 
 	// print(KPmemPrev, n, SL);
 
 	// std::cerr << kpsum << std::endl;
+	for (auto& K : k)
+		K = lambda*lambda*K; // k(i, sl-1, tl) + kpsum*lambda*lambda;
 
-	double K = lambda*lambda*kpsum; // k(i, sl-1, tl) + kpsum*lambda*lambda;
-
-	return K;
+	return k;
 
 }
 
@@ -260,15 +265,17 @@ int main(int argc, char const *argv[])
 				exit(EXIT_FAILURE);
 			}
 
-			double K = getK(n, SL, TL, s, t, lambda);
-			double Ks = getK(n, SL, SL, s, s, lambda);
-			double Kt = getK(n, TL, TL, t, t, lambda);
+			std::vector<double> K = getK({3,4,5,6,7,8,10,12,14}, SL, TL, s, t, lambda);
+			std::vector<double> Ks = getK({3,4,5,6,7,8,10,12,14}, SL, SL, s, s, lambda);
+			std::vector<double> Kt = getK({3,4,5,6,7,8,10,12,14}, TL, TL, t, t, lambda);
 
-			K = K / sqrt( Ks*Kt );
+			for (std::size_t i = 0; i < K.size(); ++i)
+				K[i] = K[i] / sqrt( Ks[i]*Kt[i] );
 
-			std::cout.precision(std::numeric_limits<double>::digits10);
-			std::cout << std::fixed <<  K << std::endl;
-			// printf("%lf %lf %lf\n", K, Ks, Kt);
+			for (auto k : K) {
+				std::cout.precision(std::numeric_limits<double>::digits10);
+				std::cout << std::fixed << k << std::endl;
+			}
 
 			delete [] t;
 
@@ -311,14 +318,17 @@ int main(int argc, char const *argv[])
 			exit(EXIT_FAILURE);
 		}
 
-		double K = getK(n, SL, TL, s, t, lambda);
-		double Ks = getK(n, SL, SL, s, s, lambda);
-		double Kt = getK(n, TL, TL, t, t, lambda);
+		std::vector<double> K = getK({3,4,5,6,7,8,10,12,14}, SL, TL, s, t, lambda);
+			std::vector<double> Ks = getK({3,4,5,6,7,8,10,12,14}, SL, SL, s, s, lambda);
+			std::vector<double> Kt = getK({3,4,5,6,7,8,10,12,14}, TL, TL, t, t, lambda);
 
-		K = K / sqrt( Ks*Kt );
+		for (std::size_t i = 0; i < K.size(); ++i)
+			K[i] = K[i] / sqrt( Ks[i]*Kt[i] );
 
-		std::cout.precision(std::numeric_limits<double>::digits10);
-		std::cout << std::fixed <<  K << std::endl;
+		for (auto k : K) {
+			std::cout.precision(std::numeric_limits<double>::digits10);
+			std::cout << std::fixed << k << std::endl;
+		}
 		// printf("%lf\n", K);
 
 		delete [] t;
