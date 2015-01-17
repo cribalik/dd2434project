@@ -20,6 +20,7 @@ class WordStringKernel(StringKernel):
                    dataset.get_data(topic=None, data_type=DataType.testing)
             docs = [article.body for article in docs]
             self.__idf_cached = wk.get_idf(docs)
+        return self.__idf_cached
 
 
     def gram_matrix(self, row_arguments, column_arguments):
