@@ -1,4 +1,5 @@
 import os
+
 from enum import Enum
 
 from reuters import Parser, DataType
@@ -7,6 +8,7 @@ from reuters import Parser, DataType
 __author__ = 'Daniel Schlaug'
 
 _dir = os.path.dirname(os.path.abspath(__file__))
+
 
 class Topics(Enum):
     acquisition = 'acq'
@@ -18,14 +20,19 @@ class Topics(Enum):
     def values():
         return [topic.value for topic in Topics]
 
+
 class Dataset:
     """
     Examlple usage:
     dataset = Dataset()
     acquisition_training_set = dataset.get_data(DataType.training, Topics.acquisition)
     """
+    __parser = None
+
     def __init__(self, reuters_path=os.path.join(_dir, "data/reuters21578")):
-        self.parser = Parser(reuters_path)
+        if Dataset.__parser is None:
+            Dataset.__parser = Parser(reuters_path)
+        self.parser = Dataset.__parser
 
     def get_data(self, topic, data_type):
         if topic is None:
@@ -54,5 +61,6 @@ class Dataset:
                                             with_topics=included_topics,
                                             without_topics=excluded_topics,
                                             limit_count_to=count)
-            assert len(articles) == count, "Wrong count on topic: %r, data_type: %r: %i" % (topic, data_type, len(articles))
+            assert len(articles) == count, "Wrong count on topic: %r, data_type: %r: %i" % (
+            topic, data_type, len(articles))
             return articles
