@@ -1,7 +1,10 @@
 from unittest import TestCase
+import tabulate
 from dataset import Dataset, Topics
+from kernels import gram
 from reuters import DataType
 from kernels.ngk import ngkernel
+import kernels.ngk as ngk
 
 __author__ = 'Daniel Schlaug'
 
@@ -42,3 +45,12 @@ class TestNgkernelIT(TestCase):
 
         print((evaluations, perpendicular))
         self.failIfEqual(evaluations, perpendicular)
+
+    def test_ngkernel_gram_matrix(self):
+        dataset = Dataset()
+        training_bodies = [article.body for article in dataset.get_data(topic=Topics.corn, data_type=DataType.training)]
+        testing_bodies = [article.body for article in dataset.get_data(topic=Topics.corn, data_type=DataType.testing)]
+
+        kernel = ngk.ngk(14)
+        gram_matrix = gram.gram(training_bodies, testing_bodies, kernel)
+        print(tabulate.tabulate(gram_matrix))
