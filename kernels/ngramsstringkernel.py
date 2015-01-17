@@ -7,8 +7,8 @@ __author__ = 'Eric Hörberg'
 
 
 class NGramsStringKernel(StringKernel):
-    def __init__(self, n):
-        self.n = n
+    def __init__(self, length):
+        self.n = length
 
     def gram_matrix(self, row_arguments, column_arguments):
         return gram.gram(column_arguments, row_arguments, ngk.ngk(self.n))
@@ -22,4 +22,4 @@ class NGramsStringKernel(StringKernel):
 
     @staticmethod
     def understood_arguments():
-        return ['n']
+        return ['length']
