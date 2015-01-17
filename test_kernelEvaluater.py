@@ -12,19 +12,23 @@ from reuters import Article
 __author__ = 'Daniel Schlaug'
 
 dummy_training_data = [
-    Article(body="1", topics=["1"], data_type=DataType.training),
-    Article(body="2", topics=["2"], data_type=DataType.training),
+    Article(body="1", topics=["acq"], data_type=DataType.training, id=1),
+    Article(body="2", topics=["corn"], data_type=DataType.training, id=2),
+    Article(body="3", topics=["crude"], data_type=DataType.training, id=3),
+    Article(body="4", topics=["earn"], data_type=DataType.training, id=4),
 ]
 
 dummy_testing_data = [
-    Article(body="1", topics=["1"], data_type=DataType.testing),
-    Article(body="2", topics=["2"], data_type=DataType.testing),
+    Article(body="1", topics=["acq"], data_type=DataType.testing, id=1+4),
+    Article(body="2", topics=["corn"], data_type=DataType.testing, id=2+4),
+    Article(body="3", topics=["crude"], data_type=DataType.testing, id=3+4),
+    Article(body="4", topics=["earn"], data_type=DataType.testing, id=4+4),
 ]
 
 
 class TestKernelEvaluater(TestCase):
     def test_evaluation(self):
-        evaluater = KernelEvaluater(dummy_training_data, dummy_testing_data, [DummyKernel], topics=["1", "2"])
+        evaluater = KernelEvaluater(dummy_training_data, dummy_testing_data, [DummyKernel], topics=["acq", "crude"])
 
         latex_evaluation = evaluater.evaluation({'n':2, 'length': 2, 'weight_decay': [4, 5, 6]}, output_format=OutputFormat.latex)
         rows = latex_evaluation.splitlines()
