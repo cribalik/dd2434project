@@ -32,7 +32,23 @@ class TestKernelEvaluater(TestCase):
 
         latex_evaluation = evaluater.evaluation({'n':2, 'length': 2, 'weight_decay': [4, 5, 6]}, output_format=OutputFormat.latex)
         rows = latex_evaluation.splitlines()
-        self.failUnlessEqual(len(rows), 7)
+        print(latex_evaluation)
+        self.failUnlessEqual(len(rows), 14)
+        self.assertEqual(latex_evaluation,
+r"""\begin{table}[h]
+\centering
+\begin{tabular}{l|l|l|l|l|l|l|l}
+Topic & Kernel & Length & Weight Decay & N & F1 & Precision & Recall \\
+acq & Dummy Kernel & 2 & 4 & 2 & 1.0000 & 1.0000 & 1.0000 \\
+acq & Dummy Kernel & 2 & 5 & 2 & 1.0000 & 1.0000 & 1.0000 \\
+acq & Dummy Kernel & 2 & 6 & 2 & 1.0000 & 1.0000 & 1.0000 \\
+crude & Dummy Kernel & 2 & 4 & 2 & 1.0000 & 1.0000 & 1.0000 \\
+crude & Dummy Kernel & 2 & 5 & 2 & 1.0000 & 1.0000 & 1.0000 \\
+crude & Dummy Kernel & 2 & 6 & 2 & 1.0000 & 1.0000 & 1.0000 \\
+\end{tabular}
+\caption{Caption}
+\label{tab:my_label}
+\end{table}""")
 
         python_evaluation = evaluater.evaluation({'n':[1, 2], 'length': 2, 'weight_decay': [4, 5, 6]}, output_format=OutputFormat.python)
         self.failUnlessEqual(len(python_evaluation), 12)

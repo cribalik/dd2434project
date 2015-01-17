@@ -62,10 +62,11 @@ class KernelEvaluater:
     @staticmethod
     def __latex_header(rows):
         row = rows[0]
-        prefix = ""
+        prefix = '\\begin{table}[h]\n' \
+                 '\\centering\n' \
+                 '\\begin{tabular}{%s}\n' % '|'.join(["l"]*len(row))
         items = " & ".join([str(key).replace('_', ' ').title() for key in row.keys()])
-        suffix = ""
-        return prefix + items + suffix
+        return prefix + items
 
     def evaluation(self, kernel_kwargs=None, output_format=OutputFormat.python):
         pending_rows = []
@@ -85,7 +86,12 @@ class KernelEvaluater:
 
             lines = [" & ".join(["%.4f" % value if type(value) is float else str(value) for value in row.values()]) for
                      row in rows]
-            return " \\\\\n".join([header] + lines)
+
+            suffix = '\end{tabular}\n' \
+                     '\caption{Caption}\n' \
+                     '\label{tab:my_label}\n' \
+                     '\end{table}'
+            return " \\\\\n".join([header] + lines + [suffix])
 
     @staticmethod
     def _remove_args_not_understood_by_kernel(kernel, kernel_kwargs):
