@@ -1,4 +1,8 @@
 /* 
+ *
+ * SSK.cpp By Christopher Mårtensson
+ *
+ *
  * Calculate the SSK Kernel between 2 strings s and t;
  * 
  *
