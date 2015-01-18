@@ -1,3 +1,4 @@
+# Written by Johan Ekstrom
 import kernels.kernel_approx as kernel_approx
 import reuters
 

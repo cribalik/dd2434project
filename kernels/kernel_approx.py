@@ -1,3 +1,4 @@
+# Written by Johan Ekstrom
 import numpy as np
 from . import SSK
 from math import sqrt

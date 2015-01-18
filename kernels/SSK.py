@@ -1,3 +1,5 @@
+# SSK.py by Christopher Mårtensson
+
 import subprocess
 from subprocess import Popen, PIPE
 import os.path
