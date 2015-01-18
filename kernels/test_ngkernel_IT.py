@@ -51,6 +51,9 @@ class TestNgkernelIT(TestCase):
         training_bodies = [article.body for article in dataset.get_data(topic=Topics.corn, data_type=DataType.training)]
         testing_bodies = [article.body for article in dataset.get_data(topic=Topics.corn, data_type=DataType.testing)]
 
+        print(testing_bodies[8])
+        print(training_bodies[11])
+
         kernel = ngk.ngk(14)
         gram_matrix = gram.gram(training_bodies, testing_bodies, kernel)
-        print(tabulate.tabulate(gram_matrix))
+        print(tabulate.tabulate(gram_matrix, floatfmt='e'))
