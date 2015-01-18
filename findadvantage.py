@@ -12,7 +12,7 @@ testing = dataset.get_data(topic=None, data_type=DataType.testing)
 testing_bodies = [article.body for article in testing]
 
 length = 5
-weight_decay = 0.01
+weight_decay = 0.5
 
 ssk = SubSequenceStringKernel(length, weight_decay)
 ngk = NGramsStringKernel(length)
